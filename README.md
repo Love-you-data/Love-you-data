@@ -6,6 +6,8 @@ I have always tried to read and try to practice differet strategies of finance u
 For ex, i would download stock data and try to apply different strategies in derivatives to arrive at profit.
 
 Im currently learning Google Data analytics course ad is doing a case study to for analyzing the data from strat to end.
+
+The Bellabeat.Rmd is a -R markdown file showing the complete analysis of Bellabeat Case Study. 
 <!---
 Love-you-data/Love-you-data is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
