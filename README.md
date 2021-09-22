@@ -7,7 +7,7 @@ For ex, i would download stock data and try to apply different strategies in der
 
 Im currently learning Google Data analytics course ad is doing a case study to for analyzing the data from strat to end.
 
-### Bellabeat CAse Study 
+### Bellabeat Case Study 
 
 The Bellabeat.Rmd is a -R markdown file showing the complete analysis of Bellabeat Case Study. 
 Before mking it into a r markdown file, i have created individual files for different ares and then later merged into it. The individual files are present in
