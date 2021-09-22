@@ -1,0 +1,1613 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+#### ASK PHASE: 
+**Business Task: We need to analyze the bellabeat data product which will help us gain insight into the customers who doesn't use non-bellabeat smart devices.**
+
+##### Who are my stakeholders?
+
+* **Urška Sršen**: Bellabeat’s cofounder and Chief Creative Officer
+* **Sando Mur**: Mathematician and Bellabeat’s cofounder; key member of the Bellabeat executive team
+
+##### What are my Stakeholders problems?
+
+
+* Analyzing the customer's usage history
+* Improve the marketing strategy.
+
+##### How can i help them resolve the issues? 
+
+We need to analyze he trends and insights from the customer data. The insights will be taken so that we can suggest recommendation for the marketing strategy.
+
+what are some trends in the analysis?  
+how can we apply to the bellabeat customers?  
+How could these trends help influence Bellabeat marketing strategy?  
+
+#### PREPARE PHASE:
+
+##### Where is the data stored?
+
+I have stored the data in hard drive of my laptop with a password protection for analysis .
+
+##### How is your data orgaized ? Is it long or wide format?
+
+ *daily_activity_merged.csv* 
+ *dailyIntensities_merged*
+ *minuteCalories_Wide_merged*
+ *minuteIntensitiesWide_merged*
+ *weightLogInfo_merged**
+The data is a structured data.It is stored in long as well as wide format and can be opened via excel/R/sql etc.  
+
+ *dailyCalories_merged*  
+ *dailySteps_merged*
+ *heartrate_seconds_merged*
+ *hourlyCalories_merged*
+ *hourlyIntensitie_merged*
+ *hourlySteps_merged*
+ *minuteCaloriesNArrow_merged*
+ *minuteIntensitiesNarrow_merged*
+ *minuteMETsNarrow_merged*
+ *minuteSleep_merged*
+ *sleepDay_merged*
+ This is also a structured data and stored in long format.  
+
+##### Are there issues with bias or credibility in this data? Does your data ROCCC?
+
+ *daily_activity_merged.csv*
+ *dailyCalories_merged*  
+ *dailyIntensities_merged*
+ *dailySteps_merged*
+ *heartrate_seconds_merged*
+ *hourlyCalories_merged*
+ *hourlyIntensities_merged*
+ *hourlySteps_merged*
+ *minuteCaloriesNArrow_merged*
+ *minuteCaloriesWide_merged*  
+ *minuteIntensitiesNarrow_merged*
+ *minuteIntensitiesWide_merged*
+ *minuteMETsNarrow_merged*
+ *minuteSleep_merged*
+ *SleepDay_merged*
+ *weightLogInfo_merged*
+* There is little credibility  with the data as the results are publicly posted by amazon mechanical turk. The users agreed for distribution of the data including the minute level activity detail.
+* the data is also posted by third party and not from primary source
+* The data is biased as it **does not give user info for the other months** and not even for the complete April and May month. It takes **half and half of both the months.**
+*The starting date and ending date is also inconsistent with minute data sources as compared to hourly and daily sources
+* **heartrate data is also not complete** as some data is missing for some customers
+* the **minuteMETsNarrow_merged** is a new data and is bot related to any of the previous data yet except in customer data and date.
+* the **minutesleep_merged** is a new data
+* **sleepDay_merged** is new data and sleep record column is not understandable
+
+The data does not follow ROCCC:
+
+* It is not reliable even though it generated and shared by many users with the permission of the original fitbit users. Many users have analyzed the data and gave their own submission.
+* The results are from the amazon turk survey results and it may not be original.
+* Comprehensive : Many types of data which becomes confusing for analyzing
+* current: It is not current data as it includes data from April May 2016
+* Citied : No citation is present
+* The **dailycalories_merged data is redundant** as the same data is available in **dailyActivity_merged.csv**
+* The **dailyIntensities_merged data is redundant** as the same duplicate data is available in **dailyActivity_merged**
+* The **dailySteps_merged data is redundant** as the same duplicate data is available in **dailyActivity_merged**
+* the **heartrate_econds_merged is comprehensive**though not complete as it gives data only for apr/may  
+* the **hourlyIntensities_merged is comprehensive**though not complete as it gives data only for apr/may
+* the **hourlySteps_merged is comprehensive**though not complete as it gives data only for apr/may
+* the **minuteCaloriesWide data starts from 13th whereas  Narrow data starts from 12** there is inconsistency in data for verification so its **less reliable** though its comprehensive 
+* the **customer data (date of start nd end) in minuteIntensities (wide and narrow) sheet differs**
+* The **minuteSleep_merged** is unique as above the customer dates are not consistent and **column_names not understandable**
+* The **weightLogInfo_merged** is **not comprehensive, current as it contains few data about each customer,not reliable for checking sleep pattern
+
+* The credibility of this data is also very less as the data is from a third party nd hosted by a third party as well.
+
+##### How did you verify the data’s integrity?
+
+*daily_activity_merged.csv* 
+*heartrate_seconds_merged*
+*hourlyCalories_merged*
+ *hourlyIntensities_merged*
+ *hourlySteps_merged*
+ *minuteCaloriesNArrow_merged*
+ *minuteCaloriesWide_merged*  
+ *minuteIntensitiesNarrow_merged*
+ *minuteIntensitiesWide_merged*
+ *minuteMETsNarrow_merged*
+* I have scanned through data to find null values, duplicate values i.e. entity integrity and referential integrity and domain integrity.  
+* Also all the columns data type have the similar data in their respective cells.  
+* The timeline is from April 12 2016 to May 12th 2016.
+* The total data is also of only nearly 1000 observations.
+* **the heartrate data** is **not complete** for some customers as some months data is not available itself for them.
+* The **consistency of minute data sheets( Calories/Intensities/Steps) differ** in narrow and wide 
+* The *weightLogInfo_merged* has null values, blanks, inconsistent date formats, unexplained col names and less data.
+
+  
+##### How does it help answer the question?  
+*daily_activity_merged.csv*    
+* I have to find relation and analyze trends in this data .
+
+*hourlyCAloris_merged*
+* Check the values with daily sheet
+
+
+What research do i need to do it figure out how to solve the problem?
+
+We have to go through the complete scanning of the data, its variables in detail to understand the data first and then go next step after this.
+
+#### PROCESS PHASE AND ANALYZE PHASE:
+
+
+Tools I am using :
+
+Excel to view and understand the data to remove the duplicates,view any missing data, check the data format
+R tool to understand the data, its format change, to remove duplicates etc.
+
+
+##### Cleaning the data which are only in narrow formats
+
+
+```{r Load the libraries}
+library(gridExtra)
+ library(viridis)
+ library(factoextra)
+ library(mclust)
+ library(ggpubr)
+ library(ggplot2)
+ library(dplyr)
+ library(stringr)
+ library(ggplot2)
+ library(tidyverse)
+ library(lubridate)
+ library(skimr)
+ library(SimDesign)
+ library(chron)
+ library(ggcorrplot)
+# library(summarytools)
+ # library(explore)
+ # library(dataMaid)
+ library(sqldf)
+library(hms)
+library(ggalt)
+ 
+```
+```{r Load the files}
+daily_activity <- read.csv("dailyActivity_merged.csv",header = TRUE)
+heartrate_seconds <- read.csv("heartrate_seconds_merged.csv",header = TRUE)
+hourly_calories <- read.csv("hourlyCalories_merged.csv",header=TRUE)
+hourly_intensities <- read.csv("hourlyIntensities_merged.csv",header = TRUE)
+hourly_steps <- read.csv("hourlySteps_merged.csv",header=TRUE)
+minuteMET_narrow <- read.csv("minuteMETsNarrow_merged.csv",header=TRUE)
+minuteSleep <- read.csv("minuteSleep_merged.csv",header=TRUE)
+# day_sleep <- read.csv("sleepDay_merged.csv",header=TRUE)
+# weight_log_info <- read.csv("weightLogInfo_merged.csv",header=TRUE)
+
+```
+To have an overall general view of the data i did a bird's eye view check of data and tried t understand it.I have a tried the following for all the data sets.
+
+The **makeDataReport** and **explore** are some of R's packages which will help in doing the EDA analysis.
+
+```{r eval=FALSE, include=FALSE}
+print(dfSummary(daily_activity))
+explore(daily_activity)
+makeDataReport(da_sleep,render=FALSE)
+length(unique(weight_log_info[,1]))
+str(daily_activity)
+glimpse(daily_activity)
+summary.data.frame(daily_activity)
+```
+
+To clean the data, a separate function is created which makes the process easier named **clean_narrow_data**.
+
+```{r create the function to clean narrow data}
+clean_narrow_data <- function(file,st){
+    
+    
+    if( st == "daily_activity"){
+        file[,2] <- mdy(file[,2])
+        file[4:10] <- round(file[4:10],2)
+        # file$date <- as.Date(file[,2])
+        # file$time <- format(as.POSIXct(file[,2]),"%H:%M:%S")
+        file$day <- weekdays(file[,2])
+    file$day <- factor(file$day, levels= c("Sunday", "Monday", 
+                                                 "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+        file$week <- week(file[,2])-min(week(file[,2])) + 1
+    }
+    else if(st!="day_sleep_cp"){
+        file[,2] <- mdy_hms(file[,2])
+        file$day <- weekdays(file[,2])
+        file$day <- factor(file$day, levels= c("Sunday", "Monday", 
+                                               "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+        file$week <- week(file[,2])-min(week(file[,2])) + 1
+        # if(st!="day_sleep"){
+        # file$time <- hms(file[,2])
+        # }
+    }
+    else{
+        file[,2] <- ymd(file[,2])
+        file$day <- weekdays(file[,2])
+        file$day <- factor(file$day, levels= c("Sunday", "Monday", 
+                                               "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+        file$week <- week(file[,2])-min(week(file[,2])) + 1
+    }
+    paste("checking for NAs")
+    which(is.na(file))
+    
+    if(st == "weight_log_info"){
+        file <- file %>%   select(-Fat)
+    }
+    #Retaining the distinct file
+    file <- file %>% distinct(file[,])
+    
+    #rounding off to two decimal places 
+    if(st=="hourly_intensities"){
+    file[,4] <- round(file[,4],2)
+    }
+    if(st=="weight_log_info"){
+    file[,c(3:5)] <- round(file[,3:5],2)
+    }
+  
+    if( st != "daily_activity" && st != "day_sleep_cp" ) {
+        file$Date <- as.Date(file[,2])
+        file$time <- format(as.POSIXct(file[,2]), format = "%H:%M:%S") 
+        file$time <- as.POSIXct(file$time,format="%H:%M:%S")
+    }
+    #Removing the redundant column time/activity date/hour etc(column 2)
+    if( st !=  "daily_activity" && st != "day_sleep_cp"){
+    file <- file %>% select(-2)
+    }
+    return(file)
+}
+```
+```{r Pass the files to the function}
+daily_activity <- clean_narrow_data(daily_activity,deparse(substitute(daily_activity)))
+# day_sleep <- clean_narrow_data(day_sleep,deparse(substitute(day_sleep)))
+heartrate_seconds <- clean_narrow_data(heartrate_seconds,deparse(substitute(heartrate_seconds)))
+hourly_intensities <- clean_narrow_data(hourly_intensities,deparse(substitute(hourly_intensities)))
+hourly_calories <- clean_narrow_data(hourly_calories,deparse(substitute(hourly_calories)))
+hourly_steps <- clean_narrow_data(hourly_steps,deparse(substitute(hourly_stepss)))
+minuteMET_narrow<- clean_narrow_data(minuteMET_narrow,deparse(substitute(minuteMET_narrow)))
+minuteSleep <- clean_narrow_data(minuteSleep,deparse(substitute(minuteSleep)))
+# weight_log_info <- clean_narrow_data(weight_log_info,deparse(substitute(weight_log_info)))
+
+hourly_cal_int_step <- Reduce(function(x,y) inner_join(x=x,y=y,by=c("Id","Date","time","day","week"),all=T),
+                                                  list(hourly_calories,
+                                                       hourly_intensities,
+                                                       hourly_steps))
+
+head(which(is.na(hourly_cal_int_step), arr.ind=TRUE))
+colnames(hourly_cal_int_step)[5] <- "ActivityDate"
+rm("hourly_calories","hourly_intensities","hourly_steps")
+
+```
+
+
+
+
+Following are ways in which the data is cleaned:
+*	The date formats in excel files were different for different types of data, ( day type data and minute type data) so based on the 3 category of data files ( daily_activity,day_sleep and everything else:
++ The *date* is converted to a common POSIXct format in R
++	All the numerical/ decimal value are rounded off to 2 digits
++	A separate *day* column is created which mentions the day of week of that particular date and are ordered in a sun to sat order.
++	The *week* column is created which specifies the week number from starting to end( week 1, week 2 and so on)
++	The file is checked for NA and  no NA is present in except the weight log info
++	For the files which are minute and hour wise segregated
++	The Original ActivityDate column is divided into date and time column in their proper formats.
++	Since the hourly calories, intensities and steps contain same ID and date , the data is merged and into a single data frame and individual data frames are deleted
+
+After cleaning all the original data, i have analyzed data by the categories such as sleeping and daily activity and did analysis on them separately and combined( how sleep data relate with daily data/hourly data and so on).
+
+##### Segregating the users in their categories and analyzing the day wise data  
+
+I have set G=4 in Mclust to divide users into 4 categories as mentioned in daily_activity sheet and create a column to assign the cluster.  
+```{r Cluster classification}
+fit <- Mclust(daily_activity,G=4)
+fviz_mclust_bic(fit,legend = NULL,shape="model")
+summary(fit) 
+daily_activity$mcluster <- fit$classification
+options(scipen=10000)
+
+```
+  
+Next, we need to determine what cluster number corresponds to which type of user. We will visualize the data, see the pattern and assign categories its names then.  
+```{r summarise data for cluster assignment}
+cat_assign <- daily_activity %>%
+        group_by(mcluster) %>% 
+        summarise(ts=mean(TotalSteps),
+                  td=mean(TotalDistance),
+                  vad=mean(VeryActiveDistance),
+                  mad=mean(ModeratelyActiveDistance),
+                  lad=mean(LightActiveDistance),
+                  sd=mean(SedentaryActiveDistance),
+                  vam=mean(VeryActiveMinutes),
+                  fam=mean(FairlyActiveMinutes),
+                  lam=mean(LightlyActiveMinutes),
+                  sm=mean(SedentaryMinutes),
+                  ca=mean(Calories)) 
+# summary(daily_activity[,c(3,4,7:10,11:14)])
+da_overall <- daily_activity %>%
+        summarise(
+                mcluster = seq(4),
+                ts=mean(TotalSteps),
+                td=mean(TotalDistance),
+                vad=mean(VeryActiveDistance),
+                mad=mean(ModeratelyActiveDistance),
+                lad=mean(LightActiveDistance),
+                sd=mean(SedentaryActiveDistance),
+                vam=mean(VeryActiveMinutes),
+                fam=mean(FairlyActiveMinutes),
+                lam=mean(LightlyActiveMinutes),
+                sm=mean(SedentaryMinutes),
+                ca=mean(Calories)) 
+```
+
+``` {r analyze data for cluster assignment }
+
+ggarrange(
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$vam), group = 1, fill = "Clustered mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = vam, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Very Active Minutes")+
+                geom_text(aes(label = round(cat_assign$vam,2),y=cat_assign$vam),hjust=-0.3, vjust =-0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$vam,2),y=da_overall$vam),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9)),
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$fam), group = 1, fill = "Clustered mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = fam, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Fairly Active Minutes")+
+                geom_text(aes(label = round(cat_assign$fam,2),y=cat_assign$fam),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$fam,2),y=da_overall$fam),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9)),
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$lam), group = 1, fill = "Clustered mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = lam, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Lightly Active Minutes")+
+                geom_text(aes(label = round(cat_assign$lam,2),y=cat_assign$lam),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$lam,2),y=da_overall$lam),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9)),
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$sm), group = 1, fill = "Clustered mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = sm, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Sedentary Minutes")+
+                geom_text(aes(label = round(cat_assign$sm,2),y=cat_assign$sm),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$sm,2),y=da_overall$sm),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9))
+)
+```
+```{r Analyze data for cluster assignment 2}
+ggarrange(
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$vad), group = 1, fill = "Clustered Mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = vad, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Very Active Distance")+
+                geom_text(aes(label = round(cat_assign$vad,2),y=cat_assign$vad),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$vad,2),y=da_overall$vad),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9)),
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$mad), group = 1, fill = "Clustered Mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = mad, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Fairly Active Distance")+
+                geom_text(aes(label = round(cat_assign$mad,2),y=cat_assign$mad),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$mad,2),y=da_overall$mad),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9)),
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$lad), group = 1, fill = "Clustered Mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = lad, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Lightly Active Distance")+
+                geom_text(aes(label = round(cat_assign$lad,2),y=cat_assign$lad),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$lad,2),y=da_overall$lad),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9)),
+        cat_assign %>% ggplot( aes(mcluster)) +
+                geom_bar(aes(y = after_stat(cat_assign$sd), group = 1, fill = "Clustered Mean"),
+                         width = 0.4, position = position_nudge(0.22)) +
+                geom_col(aes(y = sd, fill = "Overall mean"), data = da_overall,
+                         width = 0.4, position = position_nudge(-0.22))+
+                labs(y="Sedentary Distance")+
+                geom_text(aes(label = round(cat_assign$sd,5),y=cat_assign$sd),hjust=-0.3, vjust = -0.5, size = 3,
+                          position = position_dodge(0.9))+
+                geom_text(aes(label = round(da_overall$sd,5),y=da_overall$sd),hjust=1, vjust = -0.4, size = 3,
+                          position = position_dodge(0.9))
+)
+
+```
+
+We would segregate the users into 
+
+The mean of **Sedentary minutes** for *cluster 3* is greater than overall mean of Sedentary minutes.We need not delver into Very active distance and total steps. Hence, Cluster 3 is **Sedentary Users** 
+
+The mean of **VeryActieMinutes** of the *cluster 2 and cluster 4* is greater than the overall mean of the data set. So any one of  can be *very active user*
+
+The mean of **fairly active minutes** of cluster 2 and cluster 4 is greater than the overall mean of data.So any one of  can be *Fairly active user*
+
+In cluster 4, the TotalSteps walked is highest of all, the calories burned is more than cluster 2 and the very active minutes is more and fairly active minutes is less as compared to Cluster 2. Hence, Cluster 4 is *Very Active User* and Cluster 2 is *Fairly Active User*. 
+
+The mean of **lightly active minutes** of Cluster 1 and cluster 4 is greater than the overall mean of the data. Since, cluster 4 comes in above of the two categories we eliminate cluster 4. Hence cluster 1 is *Lightly Active User*
+
+In a nutshell,
+
+Cluster 4 - Very Active User
+Cluster 2 - Fairly Active User
+Cluster 1 - Lightly Active User
+Cluster 3 - Sedentary User
+
+```{r}
+rm(cat_assign,fit,da_overall)
+daily_activity$mcluster[daily_activity$mcluster %in% 1] <-"Lightly Active"
+daily_activity$mcluster[daily_activity$mcluster %in% 2] <-"Fairly Active"
+daily_activity$mcluster[daily_activity$mcluster %in% 4] <-"Very Active"
+daily_activity$mcluster[daily_activity$mcluster %in% 3] <-"Sedentary"
+
+```
+
+
+What is the relationship Between Calories Burned,Steps Taken, Distance Traveled and user type?
+
+```{r relationship Between Calories Burned,Steps Taken, Distance Travelled and user type}
+ggarrange(
+daily_activity %>%
+        group_by(mcluster) %>% 
+        summarise(total_calories = round((Calories)/1000,2)) %>% 
+        
+        ggplot(aes(x=mcluster,y=total_calories,fill=factor(mcluster))) +
+        geom_boxplot()+
+        ylab("in 000's")+
+  xlab("Type of User"),
+
+daily_activity %>%
+        group_by(mcluster) %>% 
+        summarise(total_steps = round((TotalSteps),2)) %>% 
+        ggplot(aes(x=mcluster,y=total_steps,fill=factor(mcluster))) +
+        geom_boxplot()+
+        ylab("Total Steps")+
+        xlab("Type of User"),
+
+ daily_activity %>%
+        group_by(mcluster) %>% 
+        summarise(total_distance = round((TotalDistance),2)) %>% 
+        ggplot(aes(x=mcluster,y=total_distance,fill=factor(mcluster))) +
+        geom_boxplot()+
+         ylab("in km")+
+        xlab("Type of User")
+)
+
+```
+
+We see that:
+
+* The Fairly Active User and Very Active User are nearly in sync with each in Travelling the total Distance and having total steps taken, yet *Very Active User* burns more calories as compared to fairly Active user.*This might be due to the high intensive activities that might be done by the Very active user  
+* As we expect the Fairly Active user has lesser Calories burned and distance and steps as they belong in middle range category.  
+* Sedentary users travel travel the lest distance and steps and bur the lowest calories. 
+
+
+What is Calories burned,Steps taken and distance traveled for different users day-week wise?
+
+```{r }
+
+daily_activity  %>% 
+  group_by(mcluster,day,week) %>% 
+  summarise(total_calories= mean(Calories)) %>% 
+  mutate(total_calories=round(total_calories/1000,2)) %>% 
+  ggplot(aes(x=day,y=total_calories),fill=factor(mcluster)) +
+  geom_col(aes(fill=factor(mcluster)))+
+  facet_grid(week~factor(mcluster))+
+  geom_text(aes(label =(total_calories)), vjust = -0.2, size = 3,
+            position = position_dodge(0.9))+
+  theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+  labs(y="Avg CAlories Burnt(000)")
+daily_activity  %>% 
+  group_by(mcluster,day,week) %>% 
+  summarise(total_distance= round(mean(TotalDistance),2)) %>% 
+  ggplot(aes(x=day,y=total_distance)) +
+  geom_col(aes(fill=factor(mcluster)))+
+  facet_grid(week~factor(mcluster))+
+  geom_text(aes(label =total_distance), vjust = -0.2, size = 3,
+            position = position_dodge(0.9))+
+  theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+  labs(y="Total Distance(in km)")
+
+daily_activity  %>% 
+  group_by(mcluster,day,week) %>% 
+  summarise(total_steps= mean(TotalSteps)) %>% 
+  mutate(total_steps=round(total_steps/1000,2)) %>% 
+  ggplot(aes(x=day,y=total_steps)) +
+  geom_col(aes(fill=factor(mcluster)))+
+  facet_grid(week~factor(mcluster))+
+  geom_text(aes(label =total_steps),hjust=
+              0.4, vjust = -0.2, size = 3,
+            position = position_dodge(0.9))+
+  theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+  labs(y="Total Steps( in 000)")
+
+
+
+
+```
+* For *Very Active Users*
++Most of the Very Active Users are active on  weekdays as compared to Weekends.  They maintain an either increasing or steady pattern in taking their total Steps and Total Distance 
++	They take a minimum of 10k steps per during the first 4 weeks and reduces  to 9k steps in the 	final week.
++	Only 1 user is active either on Saturday / Sunday and they travel the maximum distance
++	Even Though they maintain irregular pattern in days of performing activity, they are the ones who lose the maximum amount of calories, as they travel maximum steps and distance
+  + 
+
+* For **Fairly Active Users**
+  + *Fairly Active Users* have a routine average of 12000-13000 steps per day and average of 9.5 km per day and 2500-2800 calories per day. There is nether increase or decrease in any day as they appear to maintain fitness rather than to be very active
++ They have steady constant pattern throughout the 4 weeks and all the 7 days.
++ They travel more distances either in middle of week or during the weekends,and decreases during the rest.
++The average calories  per week per day burned reduces as they go from week 1 to week 5 and so is the intensity as they go through from Week 1 to week 5, though they try to maintain a constant pace through out the week.
+
+* For **Lightly Active User**  
++ They maintain a steady average of 6000 - 8000 steps per day per week, and between 4-6 km per week per day and burn nearly 2500 calories , and it neither increases nor decreases weekly basis.
+  +  As the week begins, *Lightly Active Users* works out more, increases their steps and distances and by the middle of week the steps and distance and in turn the calories burned reduces. It is highest on Saturday as it might be holiday and they are motivated to workout again.
+
+* For **Sedentary Users**
++ According to Data available on fitabase, A sedentary user burns nearly 45-50 calories an hour while doing nothing IE 1500-1800 calories a day.
++ According to the above visualization, most of the sedentary users have negligible steps and distance traveled, yet their calorie burned in the range of 1500 cal to 1800 cal.  
++This means 90% of their time is spent being sedentary and remaining 10% doing beginner workout/steps etc.
+  + They travel a maximum of 1.59 km and a maximum of 2200 steps,Due to their sedentary behavior.They are active during the middle of the week and decreases gradually.
+
+
+<!-- Sunday and Saturday is not the most active days for *Very Active Users* and travel more distance and take more steps on weekdays, though the average calories burned is more on Saturday ~ 4000 cal) as compared to Sunday (~ 2600 cal). It can be because, Sunday is considered rest day or they travel more distance with light jogging or light workouts as compared to other days where they do heavy and intense workouts. Since Saturday marks the beginning of weekend, they might be motivated to workout as a fitness enthusiast.   -->
+<!-- During the weekdays, their steps and distance traveled is reduced though they burn more calories ( ~ 3000 cal per day) as compared to other user groups. This might be because they might be working on weekdays and yet try to main regular fitness in their week.Their is an increase in calories burned for them over the week, its less on Sunday and goes on increasing and highest on Saturday. -->
+
+<!-- -->
+
+<!-- *Sedentary users* have an unsteady routine on both weekends and weekdays.  -->
+
+
+Segregating the users into categories based on the steps taken:
+
+```{r Segregting the users into categories based on the steps taken:}
+
+daily_activity <- daily_activity  %>% 
+        mutate(st=case_when(
+                TotalSteps < quantile(TotalSteps,0.25) ~"Noob(<3790)",
+                TotalSteps >=quantile(TotalSteps,0.25) &
+                        TotalSteps<quantile(TotalSteps,0.50) ~"Average\n(>=3790 & <7405)",
+                TotalSteps >=quantile(TotalSteps,0.50) &
+                        TotalSteps<quantile(TotalSteps,0.75) ~"Above\nAVerage\n(>=7405& <10727)",
+                TotalSteps >= quantile(TotalSteps,0.75) ~"Advanced(>=10727)",
+        )) 
+
+daily_activity$st <- ordered(daily_activity$st,levels=c("Noob(<3790)",
+                                                       "Average\n(>=3790 & <7405)",
+                                                       "Above\nAVerage\n(>=7405& <10727)",
+                                                       "Advanced(>=10727)"
+                                                       )) 
+```
+
+Before going further, I would clean and process the sleeping data which will be relevant for further analysis.
+
+
+
+##### Analyzing the Sleeping Data for Day and Minute wise
+
+* Setting the date between the time period 2016-04-12 and 2016-05-12 in minute_sleep data  as the data contains 2016-05-13 also and since the daily_activity does not have the data we exclude the data.
+* Comparing the day_wise_merged data and minute data grouped by data we see more data is available in grouped_minute_sleep data (441) as compared to day_sleep_data(411)
++	A day_sleep_merged copy is created by grouping the minute_level data by day basis with the column names and everything else similar to the csv file provided of day_sleep_merged(original)
++The TotalTimeInBed and TotalMinutesAsleep is calculated by calculating the time difference between the time filed as shown in code below.
++	Similarly , TotalSleep records is also created based on count of different logId of different users.
++	The day_sleep data is then cleaned using *clean_narrow_data* and all the Na is rep laced with 0.  
+
+Further analysis is also done via.(Can comment out this code as it takes time ti create reports)
+```{r}
+# print(dfSummary(minuteSleep),file="abc.html")
+# makeDataReport(da_sleep,render=FALSE)
+# explore(da_sleep)
+```
+  
+```{r create copy of day_sleep data}
+colnames(minuteSleep)[6]<- "ActivityDate"
+minuteSleep <- minuteSleep %>% subset(ActivityDate >= "2016-04-12" &
+                                          ActivityDate <="2016-05-12")
+day_sleep_cp <-
+    merge(
+        
+        minuteSleep %>%
+            group_by(Id,ActivityDate) %>%
+            mutate(TotalTimeInBed=as.numeric(difftime(time,lag(time),units="mins"))) %>%
+            replace(is.na(.),0) %>%
+            mutate(TotalTimeInBed=ifelse(TotalTimeInBed>1,0,1)) %>%
+            summarise(TotalTimeInBed=sum(TotalTimeInBed)),
+        
+        minuteSleep %>%
+            group_by(Id,ActivityDate) %>%
+            mutate(TotalSleepRecords=n_distinct(logId)) %>%
+            replace(is.na(.),0) %>%
+            summarise(TotalSleepRecords=max(TotalSleepRecords)),
+            by = c("Id","ActivityDate"))
+
+day_sleep_cp <- left_join(day_sleep_cp,
+                         minuteSleep %>%
+                          group_by(Id,ActivityDate) %>%
+                          filter(value==1) %>%
+                          mutate(TotalMinutesAsleep=n()) %>%
+                          replace(is.na(.),0) %>%
+                          summarise(TotalMinutesAsleep=mean(TotalMinutesAsleep))) 
+   
+day_sleep_cp <- clean_narrow_data(day_sleep_cp,deparse(substitute(day_sleep_cp)))
+day_sleep_cp[,5] <- day_sleep_cp[,5] %>% replace_na(0)
+
+```
+To start with basic analysis of  different users sleep pattern we need to merge the daily activity data with sleep data  
+```{r}
+da_sleep <- right_join(daily_activity,day_sleep_cp)
+head(which(is.na(da_sleep), arr.ind=TRUE))
+
+da_sleep <- da_sleep %>%
+    mutate(scluster =case_when(
+        TotalMinutesAsleep< quantile(TotalMinutesAsleep,0.25) ~"Short Sleeper",
+        TotalMinutesAsleep>=quantile(TotalMinutesAsleep,0.25)&
+            TotalMinutesAsleep<=quantile(TotalMinutesAsleep,0.75) ~"Perfect Sleepers",    
+        TotalMinutesAsleep>quantile(TotalMinutesAsleep,0.75) ~"Long Sleepers"
+    ),awake_min = TotalTimeInBed - TotalMinutesAsleep)
+
+da_sleep$sleep_efficiency <- da_sleep$TotalMinutesAsleep / da_sleep$TotalTimeInBed
+
+```
+
+
+```{r Analyzing Sedementary minutes, awake minutes and Totl time in bed minutes }
+daily_activity  %>% 
+  group_by(mcluster,day,st) %>% 
+  summarise(total_sed= mean(SedentaryMinutes/60)) %>% 
+  # mutate(total_calories=round(total_calories/1000,2)) %>% 
+  ggplot(aes(x=day,y=total_sed),fill=factor(mcluster)) +
+  geom_col(aes(fill=factor(mcluster)))+
+  facet_grid(factor(mcluster)~st)+
+  geom_text(aes(label =round(total_sed,2)), vjust = -0.2, size = 3,
+            position = position_dodge(0.9))+
+  theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+  labs(y="Sed min")+
+  theme(plot.margin = unit(c(1,1,1,1),"cm"))+
+    geom_hline(data = da_sleep %>%
+                   group_by(mcluster) %>%
+                   summarise(MN=mean(SedentaryMinutes/60)),
+               aes(yintercept = MN), col = "dark red", linetype = 1,show.legend = TRUE)
+
+
+da_sleep %>%
+  group_by(mcluster,day,st) %>%
+  summarise(total_sed= mean(SedentaryMinutes/60)) %>%
+  # mutate(total_calories=round(total_calories/1000,2)) %>%
+  ggplot(aes(x=day,y=total_sed),fill=factor(mcluster)) +
+  geom_col(aes(fill=factor(mcluster)))+
+  facet_grid(factor(mcluster)~st)+
+  geom_text(aes(label =round(total_sed,2)), vjust = -0.2, size = 3,
+            position = position_dodge(0.9))+
+  theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+  labs(y="bed min")+
+  geom_hline(data = da_sleep %>%
+                   group_by(mcluster) %>%
+                   summarise(MN=mean(TotalMinutesAsleep/60)),
+               aes(yintercept = MN), col = "dark red", linetype = 1,show.legend = TRUE)+
+  theme(plot.margin = unit(c(1,1,1,1),"cm"))+
+  scale_y_continuous(breaks = seq(0, 10, len = 10))
+
+da_sleep %>% 
+  group_by(mcluster,day,st) %>% 
+  summarise(total_sed= mean(TotalTimeInBed-TotalMinutesAsleep)) %>% 
+  # mutate(total_calories=round(total_calories/1000,2)) %>% 
+  ggplot(aes(x=day,y=total_sed),fill=factor(mcluster)) +
+  geom_col(aes(fill=factor(mcluster)))+
+  facet_grid(factor(mcluster)~st)+
+  geom_text(aes(label =round(total_sed,2)), vjust = -0.2, size = 3,
+            position = position_dodge(0.9))+
+  theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+  labs(y="awake min")+
+  geom_hline(data = da_sleep %>%
+                   group_by(mcluster) %>%
+                   summarise(MN=mean(TotalMinutesAsleep/60)),
+               aes(yintercept = MN), col = "dark red", linetype = 1,show.legend = TRUE)+
+  theme(plot.margin = unit(c(1,1,1,1),"cm"))
+
+```
+For Very Active Users:
+
+* We do have data For Very Active Users on Saturday and Sunday. Based on the data, available
+    * Users who are advanced 
+        * have sedentary hours of more than 13 hours which and out of that nearly 6.5-7.5 hours is spent in hours sleeping,
+        * out of that sleeping time they spend awake a maximum of 15-25 minutes being awake.
+        * Since it is a weekday, we can assume the remaining 7-10 hours is during the office hours.This is the time time they are being Sedentary but not in bed.
+        
+    * Users Who are Above Average
+        * They maintain a constant 12 hours of being sedentary and  a constant 6.5 of sleeping ,
+        * A 30-40 minutes if being awake 
+        * Since the remaining is 6 Sedentary hours, we can assume it is during the working hours
+        
+    * Users Who are Average
+        * Their Total sedentary hours is similar to other very active users, though their sleeping time ad time in bed is not consistent.They spend an average of 20 minutes awake
+    There are no Very Active users in Noob stage.
+    
+For Fairly Active Users:  
+
+  * Users who are Above Average
+      * They have total of 13-17 Sedentary hours,with 7-9 hours in bed 
+      * They spend more hours being awake in bed on weekends as compared to weekdays. They Sped nearly from 45 minutes to 3 hours being awake on weekends and 15-20 minutes on weekdays
+      * Without considering the time in Bed they are sedentary for a period of 2-5 hours with most sedentary on Sunday
+      
+  * Users Who are Advanced
+      * In a total Time of 13-17 Sedentary hours, 9-12 hours is spent sleeping and being awake i bed for 1 to 1.5 hrs
+      * Their other sedentary activities other than in bed is only for 3-4 hours
+  
+  * Users who are Average
+      * Their Total Sedentary hours varies day by day with an average of nearly 12.5 hours
+      * What is fascinating is that, the sedentary hours exactly matches the time in bed, which means. Since we do not have complete data we cant comment.
+      * Their being awake time is also very less, it is within a span of 20 minutes. So they are fast sleepers
+  
+  * Users who are noob
+    * Due to unavailability of data we cant comment. With the data available, they have higher sedentary hours and being in bed as well.
+    
+For Lightly Active Users:
+  
+  * All the users have consistent pattern through out the week.
+  * Each user has an maximum of 35-45 minutes being awake.
+  * They also have a consistent pattern of being in bed for 11-12 hours.
+  * Their Sedentary activities other than being in bed is nearly 3-5 hours for each hours
+  
+For Sedentary Users:
+
+  * As Expected Every User type with steps taken has higher Sedentary minutes.
+  * They also have a higher minutes in bed with most of the Sedentary minutes synchronizing with the minutes in bed.
+  * This means they are lying around and sleeping more as their being awake time is also less i.e. 15-35 minutes.
+
+
+Analyzing the hourly data of the activities to analyze it. We use anti join to check if any data is missing and we have merged correctly.
+```{r merging hourly data with daily activity}
+hourly_cal_int_step <- left_join(hourly_cal_int_step,daily_activity[,c(1,2,16:19)],by=c("ActivityDate","Id","day","week"))
+
+head(which(is.na(hourly_cal_int_step), arr.ind=TRUE))
+
+```
+
+What is the relationship between the hours of the day and the total steps taken, Calories burned and intensities for different types of users?
+
+```{r relationship between the hours of the day and the total steps taken, Calories burned and intensities for different types of users}
+hourly_cal_int_step  %>% 
+         mutate(hr=hour(time)) %>% 
+         group_by(mcluster,day,hr,st) %>% 
+         summarise(total_calories= mean(Calories),
+                   total_steps=mean(StepTotal),
+                   total_intensity=mean(TotalIntensity)) %>% 
+         mutate(total_calories=round(total_calories/1000,2)) %>% 
+         ggplot(aes(x=hr,y=total_calories)) +
+         geom_col(position="dodge")+
+         facet_grid(day~factor(mcluster))+
+         # geom_text(aes(label =mean(total_calories)), vjust = -0.2, size = 3,
+         #           position = position_dodge(0.9))+
+         theme(axis.text.x = element_text(angle =45,vjust=1,hjust=0.5))+
+         labs(y="Avg CAlories Burnt(000)")
+ 
+         hourly_cal_int_step  %>% 
+                 mutate(hr=hour(time)) %>% 
+                 group_by(mcluster,day,hr,st) %>% 
+                 summarise(total_calories= mean(Calories),
+                           total_steps=mean(StepTotal),
+                           total_intensity=mean(TotalIntensity)) %>% 
+                 # mutate(total_calories=round(total_calories/1000,2)) %>% 
+                 ggplot(aes(x=hr,y=total_steps)) +
+                 geom_col(position="dodge")+
+                 facet_grid(day~factor(mcluster))
+         hourly_cal_int_step  %>% 
+                 mutate(hr=hour(time)) %>% 
+                 group_by(mcluster,day,hr,st) %>% 
+                 summarise(total_calories= mean(Calories),
+                           total_steps=mean(StepTotal),
+                           total_intensity=mean(TotalIntensity)) %>% 
+                 # mutate(total_calories=round(total_calories/1000,2)) %>% 
+                 ggplot(aes(x=hr,y=total_intensity)) +
+                 geom_col(position="dodge")+
+                 # geom_line()+
+                 facet_grid(day~factor(mcluster))
+ 
+```
+
+For Very Active Users:  
+
+* Their *weekday* activities ( intensive activity or steps) start at 05:00 am in morning and increases as it reached roughly 08:00 am and gradually starts decreasing as they get on with their work.
+* We see they do highly intensive activities at beginning burning more calories at that time as seen in graphs above and decrease as they go on about their day. They have a constant pattern from Monday to Friday
+* During weekends it differs as they are highly active and intensive between 8-10 am rather than 5 am on Saturday and between 1 pm to 3 pm on Sunday.
+*The total Steps taken and Total Calories are also synchronized with the Total intensity as it proves,more intensive activity or more Steps taken, more are the calories burned. This level decreases as the they reach nighttime.
+
+For Fairly Active User:
+
+* They also have a constant routine through the weekdays and different in weekends.
+* They begin their activity (intensive activity or steps taken) around 7 or 8 am which is their highest ad varies through the day. 
+* Their intensity level is not high as very active person yet they are regular, their steps taken is also less compared to them so their calories burned are less to them yet consistent o a daily basis.
+* During Saturday they are highly active and take more steps and burn more calories between 11 am and 8 pm. This is synchronized with Calories burned. They might also do early morning intensive activities
+
+For Lightly Active User:
+
+* Their level of activity increases from about 7:30 am or 8 :00 am. They maintain a constant intensity and gradually decrease as the evening comes by.
+* On weekends, they do intensive activity by 11:00 am and during weekdays, it remains constant through out the day and decreases in evening.
+* Their steps taken is also very less as compared to Fairly Active users and almost stable on all days. This is reflected in Calories burned.
+* They have a stable pattern.
+
+For Sedentary Users:
+
+* They have irregular pattern in their intensive activities and steps taken through the week.
+* Their activity increases very slightly i the late evening around 08:00 pm, hence their calories burned is also constant through out the week
+
+
+How is Total Intensity related with Total Steps taken and Calorie burned ?
+
+```{r Total Intensity related with Total Steps taken and Calorie burned?}
+                hourly_cal_int_step  %>% 
+                         mutate(hr=hour(time)) %>% 
+                         group_by(mcluster,day,hr,st) %>% 
+                         summarise(total_calories= mean(Calories),
+                                   total_steps=mean(StepTotal),
+                                   total_intensity=mean(TotalIntensity)) %>% 
+                         # mutate(total_calories=round(total_calories/1000,2)) %>% 
+                         ggplot(aes(y=total_calories,x=total_intensity)) +
+                         geom_line()+
+                         facet_grid(day~factor(mcluster))
+                 
+                hourly_cal_int_step  %>% 
+                        mutate(hr=hour(time)) %>% 
+                        group_by(mcluster,day,hr,st) %>% 
+                        summarise(total_calories= mean(Calories),
+                                  total_steps=mean(StepTotal),
+                                  total_intensity=mean(TotalIntensity)) %>% 
+                        # mutate(total_calories=round(total_calories/1000,2)) %>% 
+                        ggplot(aes(y=total_steps,x=total_intensity)) +
+                        geom_line()+ 
+                        facet_grid(day~factor(mcluster))
+                
+                
+```
+The Total intensity is positively correlated in all but few cases.  
+For Very Active User:  
+* During weekdays, the pattern is such that it peaks at about 5000-5500 steps and drops down, though the intensity is increasing. During the weekend, the intensity steps increases in a linear pattern.
+    * This might indicate either they are working out on the spot during intensive exercise or in a gym or any training etc.
+    * They take more steps during weekends, i.e. they run or jog more with vigorous intensity
+    * Due to this intensive activity routine their calories burned is directly proportional to the intensity on all days, with more calories burned on weekends.
+
+For Fairly Active User:
+* They take small amount of steps in a range of 1500-2500 steps. Their intensity is also less as compared to very active user and lies in range of 75-100 max. There is no consistent pattern i their workout regime from the graph.
+* Yet, their calories burned is directly proportional to intensity as their intensity is high.
+
+For Lightly Active User:
+* They maintain a consistent amount of steps and intensity pattern throughout the week, which in turn gives a similar chart for calories burned. They follow a same routine i their exercise activities.
+
+For Sedentary User:
+* The steps taken increases during start of week to id weeks and decreases after that. It less on weekends as compared to weekdays. Hence, Calories burned is more on Weekdays as compared tow weekends. This might be because it is their rest day or holiday or break from work etc.
+
+Before going further, i would like to analyse the sleep data and how is the sleep patterns of different users
+
+##### Let us start with the basic Analysis:
+
+1. What is the relationship between TotalTimeInBed and TotalMinutesAsleep based on the user groups and day wise?  
+```{r relationship between TotalTimeInBed and TotalMinutesAsleep baed on the user groups }
+da_sleep %>%  ggplot(aes(x=TotalTimeInBed/60,y=round(TotalMinutesAsleep/60,2)))+
+    geom_jitter()+
+    facet_grid(~mcluster)+
+    scale_y_continuous(breaks = seq(0, 13, len = 13))+
+    scale_x_continuous(breaks = seq(0, 16, by = 1))+
+    geom_hline(data = da_sleep %>%
+                   group_by(mcluster) %>%
+                   summarise(MN=mean(TotalMinutesAsleep/60)),
+               aes(yintercept = MN), col = "purple", linetype = 2,show.legend = TRUE)+
+    geom_text(data = da_sleep %>%
+                  group_by(mcluster) %>%
+                  summarise(MN=mean(TotalMinutesAsleep/60)),
+              aes(0,MN,label=round(MN,2),vjust=0,hjust=0))+
+    geom_hline(data = da_sleep ,
+               aes(yintercept = mean(TotalMinutesAsleep/60)),
+               col = "red", linetype = 1,show.legend = TRUE)+
+    geom_text(data = da_sleep %>%
+                  summarise(MN=mean(TotalMinutesAsleep/60)),
+              aes(0,MN,label=round(MN,2),vjust=0,hjust=-1))+
+  ylab("Total Minutes Asleep (hr)")+
+  xlab("Total Time inn Bed (hr)")
+        
+```
+  
+* We see a positive relationship between TotalTimeInBed and Total Minutes asleep for all the users. The red horizontal line represents the mean of the overall data for Total Minutes Asleep and purple dotted line represents the mean of Total Minutes Asleep for each cluster.
+
+For Very Active Users,The cluster mean is little above overall mean. This indicates the total time in bed is nearly equal to the time they are asleep. They are awake for a few time period.
+
+For Fairly Active Users,the cluster mean is less than the overall mean of Total Minutes Asleep.From the graph , their time of staying awake is more than they are asleep. It goes to a maximum of 3 hours awake time as well. SO they lay awake in bed either due to restlessness or use work or as a far fetch, they might be insomniac. From the graph, we can see a maximum of 35-45 minutes they are awake in bed.
+
+For Lightly Active User,the cluster mean crosses the overall mean and most of users lie in the range of mean. This indicates their sleeping time is more than Fairly Active users and awake time is slight lower than them.
+
+For Sedentary Users, the cluster mean is very very less than the overall mean. Their sleeping time is very more and their being awake time is also very less (15-25 minutes)
+
+Since weight log info has fat column which has 65 BLANKS AND 2 values  so this column can be removed as no other values are available.
+The other columns also does not have any NAs.
+ 
+If we find the relationship for the above but now we segregate into day wise,
+```{r relationship between TotalTimeInBed and TotalMinutesAsleep baed on day wise}
+da_sleep %>%
+    ggplot(aes(x=(TotalTimeInBed/60),y=round((TotalMinutesAsleep/60),2)))+
+    geom_jitter()+
+    facet_grid(day~mcluster)+
+    scale_y_continuous(breaks = seq(0, 13, len = 8))+
+    geom_hline(data = (da_sleep %>%
+                           group_by(mcluster) %>%
+                           summarise(MN=mean(TotalMinutesAsleep/60))),
+               aes(yintercept = MN), col = "red", linetype = 1,show.legend = TRUE)+
+    geom_vline(data = da_sleep %>%
+                   group_by(mcluster) %>%
+                   summarise(MN=mean(TotalTimeInBed/60)),
+               aes(xintercept = MN), col = "blue", linetype = 1,show.legend = TRUE)
+
+```
+* The Very Active user have nearly same Asleep duration and total time in bed. This means they are being awake in bed for very few moments. This is from the data for weekdays as weekend data is not available.They spend an average of 7.5 hours in bed and 6-7 hours being asleep.
+* Lightly Active user Have consistent time in bed and being asleep on all days with slight variations.During weekends they tend slightly more towards the quadrant where TotalTimein bed is more and sleep is more but on the other days where the sleep is less.
+* For Fairly Active User,They are inclined such that their total time in bed and total time asleep is more. For most of the data points, the total minutes asleep i less than total time in bed, hence their total time awake is much more as compared to other groups ( which goes to 3 hours on Tuesday)
+* Sedentary users are random and does not have a particular pattern.
+
+What is the relationship between Total Time i Bed and Total Minutes Asleep for different sleepers and users?
+
+```{r relationship between Total Time i Bed and Total Minutes Asleep for different sleepers and users}
+da_sleep %>% 
+        ggplot(aes(x=TotalTimeInBed/60,y=TotalMinutesAsleep/60)) +
+        # ggplot(aes(y=mean(TotalTimeInBed/60-TotalMinutesAsleep/60),x=cluster,fill=cluster))+
+        geom_jitter()+
+        facet_grid(mcluster~scluster)+
+        geom_hline(data = da_sleep %>%
+                       group_by(scluster,mcluster) %>% 
+                       summarise(MN=mean(TotalMinutesAsleep/60)),
+                   aes(yintercept = MN), col = "red", linetype = 1,show.legend = TRUE)+
+        geom_vline(data = da_sleep %>%
+                       group_by(scluster,mcluster) %>% 
+                       summarise(MN=mean(TotalTimeInBed/60)),
+                   aes(xintercept = MN), col = "blue", linetype = 1,show.legend = TRUE)+
+        geom_vline(data = da_sleep %>%
+                       summarise(MN=mean(TotalTimeInBed/60)),
+                   aes(xintercept = MN), col = "black", linetype = 2,show.legend = TRUE)+
+        geom_hline(data = da_sleep %>%
+                       summarise(MN=mean(TotalMinutesAsleep/60)),
+                   aes(yintercept = MN), col = "black", linetype = 2,show.legend = TRUE)+
+        
+        scale_y_continuous(breaks = seq(0, 13, len = 13))+
+        scale_x_continuous(breaks = seq(0, 16, len = 6))
+```
+The black dotted line consists of the total mean of Time in bed and Minutes asleep for overall data.
+The red and blue line consists mean of Total time in bed and total minutes asleep for each sleepers and different types of users respectively
+
+For Very Active Users:
+* Most of the users are in the Perfect sleepers category, which means they lie in the range of 6-8 hours of sleep. We can also see that the colored lines and the dotted lines nearly overlap each other which is the perfect condition. They are awake for for an average of 12 minutes
+
+For Lightly Active Users:
+* It consists of all type of sleepers.
+    * Most of the short sleepers are below the overall mean and have less than 6 hours of sleep. We can see that , they have 3.5 hours of bed time and 3.25 hrs of asleep time. They stay awake at an average of 24 minutes ( intersection of blue and red line)
+    * The perfect sleepers are in sync with overall data and be awake for an average of 20 minutes in bed
+    * The long sleepers sleep for more than 8 hours. They also have higher bed time
+and awake for nearly 40 to 50 minutes in bed.
+
+For Fairly Active Users:
+The users are divided into all the 3 sleepers category with most sleepers in Perfect and Short Sleepers.
+* The short sleepers have lower bed time and minutes asleep but are awake for a longer period of time ( maximum of 3 hours)
+* The perfect sleepers deviate slightly deviate from overall mean and are awake for an average of 40-45 minutes.
+* The long sleepers have higher bed time and sleeping time and are awake for 1 hour to 1.5 hours in bed
+
+For Sedentary Users:
+* They are mostly perfect sleepers or short sleepers
+* In the perfect sleepers, they are awake for 17-20 minutes in bed 
+* If they are Short sleepers, their sleeping time is very less and in that they are awake for 10-12 minutes
+
+What is the Average Calories Burned for different sleepers based on  their user type and steps taken?
+
+```{r Average Calories Burned for different sleepers based on  their user type and steps taken}
+da_sleep  %>% 
+    group_by(mcluster,st,scluster) %>% distinct() %>% 
+    summarise(total_calories= mean(Calories)) %>% 
+    mutate(total_calories=round(total_calories/1000,2)) %>% 
+    ggplot(aes(x=st,y=total_calories))+#,fill=factor(cluster)) +
+    geom_lollipop(horizontal =FALSE,
+                  point.colour = "blue",
+                  color="#2c3e50",
+                  size=1
+                  )+
+    # geom_col(aes(fill=factor(cluster)))+
+    facet_grid(scluster~factor(mcluster))+
+    geom_text(aes(label =(total_calories)), vjust = 0.4, hjust=-0.3,size = 3,
+     position = position_dodge(0.9))+
+    theme(axis.text.x = element_text(angle =90,vjust=1.0,hjust=0.5))+
+    labs(y="Avg CAlories Burnt(000)")
+```
+ we do not have all the data which are present in daily Activities.
+ 
+ For Very Active Users:
+ * Most of the users are perfect sleepers.
+ * They generally burn more calories s compared to the other users. This is because of the highly intensive activities they do.In few cases, the person who sleeps for long time here performs the worst eve though he is walking more than average users.
+ * For any number of steps taken, they burn nearly  equal calories.
+ 
+ 
+ For Fairly Active Users:
+ * Most of the sleepers are Perfect and short sleepers
+ * Long sleepers burn more calories as compared to other sleepers.
+ * Perfect sleepers follow consistent pattern in burning their calories no matter what steps they take.
+ * No particular pattern in burning calories.The calories burned is less than those of Very Active users
+ 
+ For Lightly Active Users:
+ * They consist of all types of sleepers.
+ * People who take more steps burn more calories for all the sleepers, though as expected their calorie burned is less than those of fairly active users.Beginners bur less calories as compared to those of average and so on.
+ 
+ For Sedentary users:
+ Due to unavailability of other sedentary users we have only few users here.
+ * The pattern is the same as for lightly active user. People who walk more burn more calories. What is surprising is that a long sleeper burns more calories by walking more than the very active user.
+
+What is the sleep efficiency for different users for different sleep categories?
+
+```{r sleep efficiency for differet users for different sleep categories}
+# reorder(st,-total_efficiency*100)
+grid.arrange(
+  
+  da_sleep  %>%
+    filter(mcluster=="Very Active") %>% 
+    group_by(scluster,st) %>% 
+    summarise(total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=factor(st),y=total_efficiency*100)) +
+    geom_col(aes(fill=reorder(st,-(total_efficiency*100))))+
+    facet_grid(~factor(scluster))+
+    geom_text(aes(label =(total_efficiency*100)), vjust = -0.2, size = 3,
+              position = position_dodge(0.9))+
+    theme(axis.text.x = element_text(angle =90,vjust=1,hjust=0.5),
+          axis.text.y = element_blank())+
+    labs(y="Sleep Efficiency")+
+    ggtitle("Very Active USer")+
+    coord_polar(theta = "y",start=0)+
+    scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73")),
+  
+  da_sleep %>% 
+    filter(mcluster=="Very Active") %>% 
+    group_by(scluster,st) %>% 
+    summarise(awake_min=mean(TotalTimeInBed - TotalMinutesAsleep),
+              tib=mean(TotalTimeInBed/60),
+              total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=tib,y=awake_min))+
+      geom_col(aes(fill=reorder(st,-(total_efficiency*100))))+
+      facet_wrap(~scluster)+
+        scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73"))+
+    labs(x="Total Time In bed")
+  )
+
+grid.arrange(
+  da_sleep  %>%
+    filter(mcluster=="Fairly Active") %>% 
+    group_by(scluster,st) %>% 
+    summarise(total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=st,y=total_efficiency*100)) +
+    geom_col(aes(fill=reorder(st,total_efficiency*100)))+
+    facet_grid(~factor(scluster))+
+    geom_text(aes(label =(total_efficiency*100)), vjust = -0.2, size = 3,
+              position = position_dodge(0.9))+
+    theme(axis.text.x = element_text(angle =90,vjust=1,hjust=0.5),
+          axis.text.y = element_blank()
+          )+
+    labs(y="Sleep Efficiency")+
+    ggtitle("Fairly Active User")+
+    coord_polar(theta = "y",start=0)+
+      scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73")),
+  
+  da_sleep %>% 
+    filter(mcluster=="Fairly Active") %>% 
+    group_by(scluster,st) %>% 
+    summarise(awake_min=mean(TotalTimeInBed - TotalMinutesAsleep),
+              tib=mean(TotalTimeInBed/60),
+              total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=tib,y=awake_min))+
+      geom_col(aes(fill=reorder(st,(total_efficiency*100))))+
+      facet_wrap(~scluster)+
+        scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73"))+
+    labs(x="Total Time in Bed (hrs)")
+      #theme(axis.text.x = element_blank(),axis.ticks.x = element_blank())
+
+)
+    
+grid.arrange(     
+ da_sleep  %>%
+    filter(mcluster=="Lightly Active") %>% 
+    group_by(scluster,st) %>% 
+    summarise(total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=st,y=total_efficiency*100)) +
+    geom_col(aes(fill=reorder(st,-total_efficiency*100)))+
+    facet_grid(~factor(scluster))+
+    geom_text(aes(label =(total_efficiency*100)), vjust = -0.2, size = 3,
+              position = position_dodge(0.9))+
+    theme(axis.text.x = element_text(angle =90,vjust=1,hjust=0.5),
+          axis.text.y = element_blank()
+          )+
+    labs(y="Sleep Efficiency")+
+    ggtitle("Lightly Active User")+
+    coord_polar(theta = "y",start=0)+
+      scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73")),
+  
+  da_sleep %>% 
+    filter(mcluster=="Lightly Active") %>% 
+    group_by(scluster,st) %>% 
+    summarise(awake_min=mean(TotalTimeInBed - TotalMinutesAsleep),
+              tib=mean(TotalTimeInBed/60),
+              total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=tib,y=awake_min))+
+      geom_col(aes(fill=reorder(st,-(total_efficiency*100))))+
+      facet_wrap(~scluster)+
+        scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73"))+
+    labs(x="Total Time in Bed (hrs)")
+      #theme(axis.text.x = element_blank(),axis.ticks.x = element_blank())
+
+   )
+  grid.arrange(
+ da_sleep  %>%
+    filter(mcluster=="Sedentary") %>% 
+    group_by(scluster,st) %>% 
+    summarise(total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=st,y=total_efficiency*100)) +
+    geom_col(aes(fill=reorder(st,-total_efficiency*100)))+
+    facet_grid(~factor(scluster))+
+    geom_text(aes(label =(total_efficiency*100)), vjust = -0.2, size = 3,
+              position = position_dodge(0.9))+
+    theme(axis.text.x = element_text(angle =90,vjust=1,hjust=0.5),
+          axis.text.y = element_blank()
+          )+
+    labs(y="Sleep Efficiency")+
+    ggtitle("Sedentary Active User")+
+    coord_polar(theta = "y",start=0)+
+      scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73")),
+  
+  da_sleep %>% 
+    filter(mcluster=="Sedentary") %>% 
+    group_by(scluster,st) %>% 
+    summarise(awake_min=mean(TotalTimeInBed - TotalMinutesAsleep),
+              tib=mean(TotalTimeInBed/60),
+              total_efficiency= round(mean(sleep_efficiency),2)) %>% 
+    ggplot(aes(x=tib,y=awake_min))+
+      geom_col(aes(fill=reorder(st,-(total_efficiency*100))))+
+      facet_wrap(~scluster)+
+        scale_fill_manual(values=c("#E69F00","#CC79A7","steelblue","#009E73"))+
+    labs(x="Total Time in Bed (hrs)")
+      #theme(axis.text.x = element_blank(),axis.ticks.x = element_blank())
+
+    )
+   
+```
+Each users are arranged in descending order of the sleep efficiency. The outer pie circle has the highest efficiency and  the innermost has the least efficiency.
+
+For Very Active User:
+* Users who takes advanced steps have higher sleep efficiency a compared to the person walks an average steps. 
+* We see that above average efficiency is less than average efficiency as they like to stay awake for longer period of time of nearly 30-40 minutes. This is the same for Short Sleeper.
+* There are no noob steps takers in very active user category.
+
+
+
+For Fairly Active User:
+* The people who take above average steps(7000-10000) have higher sleep efficiency than any other user. They take more steps and might happen that they get tired and sleep quickly. This is true for all other users except very active user. They Get tired after a workout and awake time is less
+* Though, in case of short sleepers their sleeping time itself is very less and insufficient for their health.
+* The user who takes advanced steps stays awake for a very long period of time, no matter if they are long sleepers, short sleepers or perfect sleepers.Hence their efficiency is lower.
+* The noob has lowest amount of sleeping time and needs to be taken care of.
+
+For Lightly Active User:
+* The user group consists of all types of people who take a minimal steps to advanced steps.
+* In the long sleepers category, the noob and average steps takers sleeps for longer period of time hence their efficiency is high. Even though the very active users and above average users sleep for long hours yet they have the highest efficiency.
+* In the perfect sleepers category,the advanced users have higher sleep efficiency. Again, the noob has higher efficiency than the average and above average users as they have lower awake time.
+* In the short sleepers category, the noob users have lowest sleep hours , so even though the efficiency is high, it will affect their health. sleep efficiency decreases drastically for the other users as they stay awake for longer period of time than other sleepers.
+
+For Sedentary Users:
+* There are no very active users in sedentary users 
+* In the long sleepers category,all the users are the noob and are awake for nearly 40 minutes.
+* In the perfect sleepers category,the user who takes average steps,have higher steps has higher efficiency . It might happen that they get tired after taking some steps and need rest.The above average users have higher tolerance to walking and stay awake for longer period of time.
+* In the Short sleepers category, all the users have similar efficiency, though their sleeping time is very low.
+
+To analyze the sleep status of the users, we need to analyze the minute level data.
+According to the fitabase data, sleep can be categorized into 3 stages :  
+* Asleep
+* Restless
+* Awake
+```{r creating minute data for da_sleep}
+da_mi_sleep <- right_join(da_sleep,minuteSleep) 
+head(which(is.na(da_mi_sleep), arr.ind=TRUE))
+da_mi_sleep <- da_mi_sleep %>% 
+    mutate(status=case_when(
+        value==1 ~"Asleep",
+        value==2 ~"Restless",
+        value==3 ~"Awake"
+    )) %>% select(-c("value"))
+da_mi_sleep <- left_join(da_mi_sleep, da_mi_sleep %>%
+                          group_by(Id,ActivityDate,status) %>% count()
+                                         )
+colnames(da_mi_sleep)[29] <- "Minutes"  
+
+```
+What is the sleep status of different users based on user type and sleeper type?
+
+```{r sleep status of different users based on user type and sleeper type}
+  
+       # x11()  
+    da_mi_sleep %>% 
+      select(-c(27)) %>%  
+      distinct() %>% 
+     group_by(mcluster,scluster,st,status) %>%
+     summarise(ttb=round(mean(Minutes/60),3)) %>% 
+
+     # filter(status=="Awake" || status=="Restless") %>%
+    ggplot(aes(x=scluster,y=ttb)) +
+    # geom_box plot()+
+    geom_bar(stat="identity",aes(fill=status),position = "dodge")+
+    facet_grid(st~mcluster)+
+    geom_text(aes(label = sprintf("%2.1f", ttb),fill=status), 
+              size = 3,
+              position = position_dodge(width = 1),
+              hjust=-0.23)+coord_flip()+
+        ylab("MINS Sleep Status mins")+
+        xlab("Sleeper Type")
+  # x11()
+   da_mi_sleep %>% 
+    select(-c(27)) %>% 
+    distinct() %>% 
+    group_by(mcluster,scluster,st) %>% 
+    # 
+    summarise(ttb=round(mean(TotalTimeInBed/60),3)) %>%
+    # 
+    # filter(status=="Awake" || status=="Restless") %>%
+    ggplot(aes(x=scluster,y=ttb)) +
+    # geom_boxplot()+
+    geom_bar(stat="identity",position = "dodge")+
+    facet_grid(st~mcluster)+
+    geom_text(aes(label = sprintf("%2.1f", ttb)),
+              size = 3,
+              position = position_dodge(width = 1),
+              hjust=-0.23)+coord_flip()+
+    ylab("total time in bed hours")+
+    xlab("Sleeper Type")
+
+```
+For Very Active Users:
+* We see that instead of being awake , the very active users are restless for nearly 20-30 minutes and wake for only 5-6 minutes.We can use this info to tackle the problem.
+* No matter what type of sleeper they are, their restless and awake time is somewhat similar.
+
+For Fairly Active Users:
+* In case if short sleepers, the total time in bed is very less , their awake time is also less but their being restless time is more which will lead insufficient sleeping.
+* In case of perfect sleepers, their awake time is negligible and their restless time is only present for 20-30 minutes
+* In case of long sleepers, since their sleeping duration is high the awake time and restless time are very less in comparison.
+
+For Lightly Active User:
+* All the users who are awake, we see that the awake time is less and restless time is more. They are restless for nearly 25-35 minutes.
+* Again, all the short sleepers have minimal amount of sleep so we need to check the sleep pattern for short sleepers and take care of it.
+
+For Sedentary Users:
+* From the data we have, we see their restlessness is more and again wake period is less.
+* We need to concentrate the sleep pattern of short sleepers  and on restlessness of all sleepers.
+
+```{r Merge hourly data with da_sleep}
+   tt <-    left_join(hourly_cal_int_step,da_sleep[,c(1,2,16:19,23)],by=c("Id"="Id",
+                                                                             "ActivityDate"="ActivityDate",
+                                                                          "day"="day",
+                                                                          "mcluster"="mcluster",
+                                                                          "week"="week",
+                                                                          "st"="st")) %>% drop_na()
+
+```
+
+```{r}
+int_cal <- function(tt,mclust,sclust,color1,color2){
+ggarrange(
+        tt %>%  
+                mutate(hr=hour(time)) %>% filter(mcluster==mclust,
+                                                 scluster==sclust) %>% 
+                group_by(day,hr,st) %>% distinct() %>% 
+                summarise(int=round(mean(TotalIntensity),2)) %>% 
+                ggplot(aes(x=hr,y=int)) +
+                # geom_col(position="stack",size=1,fill=color1)+#009E73
+                geom_line(size=1,color=color1)+
+                facet_grid(st~day)+
+                # scale_fill_manual(values="#009E73")+
+                scale_y_continuous(labels = function(x) format(x, scientific = FALSE))+
+                ylab("Avg Intensities")+
+                xlab("hour")+
+                theme(axis.text.x = element_text(angle =90,vjust=1.0,hjust=0.5),
+                      legend.title = element_text("blank"),
+                      aspect.ratio = 2)+
+                ggtitle("Average Intensities Per hour",
+                        subtitle = paste("Steps taken vs Day for ",mclust,sclust,sep=" ")),
+        
+        tt %>%  
+                mutate(hr=hour(time)) %>% filter(mcluster==mclust,
+                                                 scluster==sclust) %>% 
+                group_by(day,hr,st) %>% distinct() %>% 
+                summarise(cal=round(mean(Calories),2)) %>% 
+                ggplot(aes(x=hr,y=cal)) +
+                # geom_col(position="stack",size=1,fill=color2)+#009E73
+                geom_line(size=1,color=color2)+
+                facet_grid(st~day)+
+                scale_y_continuous(labels = function(x) format(x, scientific = FALSE))+
+                ylab("Avg Calories")+
+                xlab("hour")+
+                theme(axis.text.x = element_text(angle =90,vjust=1.0,hjust=0.5),
+                      legend.title = element_text("blank"),
+                      aspect.ratio = 2)+
+                ggtitle("Average Calories Burnt Per hour",
+                         subtitle = paste("Steps taken vs Day for ",mclust,sclust,sep=" "))
+)
+
+  
+  }
+```
+What is the relationship between intensities  and calories for different users?
+```{r reltionship between intenities beteen intensities and calories for different users}
+int_cal(tt,"Lightly Active","Short Sleeper","#db6d00","#490092")
+int_cal(tt,"Lightly Active","Perfect Sleepers","#db6d00","#490092")
+int_cal(tt,"Lightly Active","Long Sleepers","#db6d00","#490092")
+
+int_cal(tt,"Fairly Active","Short Sleeper","#009E73","#0072b2")
+int_cal(tt,"Fairly Active","Perfect Sleepers","#009E73","#0072b2")
+int_cal(tt,"Fairly Active","Long Sleepers","#009E73","#0072b2")
+
+int_cal(tt,"Sedentary","Short Sleeper","#ff6db6","#920000")
+int_cal(tt,"Sedentary","Perfect Sleepers","#ff6db6","#920000")
+int_cal(tt,"Sedentary","Long Sleepers","#ff6db6","#920000")
+
+int_cal(tt,"Very Active","Short Sleeper","#006ddb","#ff6db6")
+int_cal(tt,"Very Active","Perfect Sleepers","#006ddb","#ff6db6")
+int_cal(tt,"Very Active","Long Sleepers","#006ddb","#ff6db6")
+
+```
+  For Lightly Active Short Sleepers:
+  
+  For Noob Users, the Intensity peaks in mid week and decreases after that.This is the same for calorie as the intensities increases more calories are burned. The intensity decreases on weekend.
+  For Average step users, They maintain somewhat similar intensity level increase on all days. The intensity hence the calories burn rate decreases as Friday-Saturday approaches and increases on Sunday. It peeks on Thursday. Although the calories burned decreases least on Thursday even though intensity is more on Thursday
+  For the above average steps user, The intensity level as expected is higher than Noob ad Average users. They maintain high of intensity and hence high amount of calories burned which peaks on Wednesday and on weekend.
+  For the advanced user, they maintain high amount of calories over the week. It starts peeking at around 5 am and decreases as the evening goes by. The intensity level also peaks during the weekend as they do vigorous exercise on weekend.The calories burned are more on weekends  as compared to weekdays.
+  
+For Lightly Active Perfect Sleepers:
+
+For Noob Users,they have constant intensity level throughout the week. The calories burnt increases during the beginning and remains constant throughout the week.
+For Average steps user,we can see that the intensity level is more as compared to noob users. The increase of intensity level from beginning of day to evening is similar for all days through the week.
+For above average users,the intensity level on hour-day wise remains constant pace throughout the weekdays and is high during weekends.The burning of calories is similar to intensity pattern and burns more calories when intensity is high.
+For Advanced steps users, They constantly do high intensive activities and they burn more calories as compared to other users. Their intensity increases on weekends and maintain somewhat similar intensity  levels on weekdays which is higher than others.
+
+For Lightly Active long Sleepers:
+
+* For Noob Step takers, the intensity level remains somewhat constant through out the week yet more calories are burned in the beginning of week as compared to week end.
+* For Average steps takers,their intensity levels are more than noob step takers.Their intensity levels increases as the day progresses and decreases by the end of day. They have an high low pattern on alternate days with a sudden spike on Monday. We see that the calories burned is similar to the pattern of intensity levels.
+* For above average users, They have a same pattern of intensity levels on days of the week and maintain somewhat similar routine.The calories burned is also similar to intensity
+* The advanced users does more intensive activities on Weekend and little less on weekdays. Yet the intensity levels and calories burned are much higher than other steps users.
+
+For Fairly Active Short Sleepers:
+
+* The noob user does a high intensity level on Saturday and average on weekends. This is the same for calories burned also. Higher the intensity, higher the calories burned.
+* The average steps user has high intensity levels on Sunday as well as Wednesday. Due to unavailability of data other days might or not be there.
+* For Above Average users, they have high intensity levels as well as calories burned on weekdays.
+* For the advanced users, they have high intensity levels on all days and there is an increasing pattern as the day progresses from the beginning of day to end.Yet the calories burned are less than others steps type users.The calories burned decreases as the week ends and have a similar pattern through out the weekdays.
+
+For Fairly Active Perfect Sleepers:
+
+* There are no noob users in this category. 
+* The average users has high intensity during beginning of week and maintains same pattern on all other days. The calories burned is also similar to intensity
+* The above average steps users has similar pattern throughout the week. Though the calories burned is slightly lesser on weekends than weekdays. Though he does high intensity the duration of that might decrease and hence the calories burned is less.
+* The Advanced users does highly intensive exercises on weekdays in a  consistent pattern and slightly higher intensive exercise o Weekends. Hence the calories burned on weekends is more on weekends.
+
+For Fairly Active Long Sleepers:
+
+* This category consists of only Above Average and Advanced step users.There is no data for Thursday and Friday or they might not do it on weekends.
+* For Above Average users, It is high on weekdays and decreases on weekends which in turn shows in their calories burnt in  similar pattern.
+* For advanced users, they have consistently high intensity on all days ( except Thursday and Friday) and starts peaking as weekend approaches.
+* The intensity increases  during day time and decreases as night approaches.
+
+For Very Active Short Sleepers:
+
+* Only Above Average steps users are here in this category and data is only for Tuesday. It is high during the morning 05:00 am and  remains steady during work hours with twin peaks indicating a certain activity ex: travelling to office ( walking,cycling etc)
+
+For Very Active Perfect Sleepers:
+
+* There are no noob users in this category as well. There are only Average , above average and advanced users. They are only active on weekdays and not o week ends.
+* We see that all the users have similar pattern on any day of week. It peaks at early morning and reduces as day progresses.
+* The Average step users, work out 3 out pf 5 days with good intensity  which reflects in their calories burning.
+* The Above average works out continuously 4 days a week and stops as Friday comes with a similar calorie burning pattern ( according to their intensity level)
+* The advanced users do intensive activities all the 5 days with somewhat a similar intensity pattern hours. It is slightly lower on Monday as it is week beginning but it increases ahead.
+
+For Very Active Long Sleepers:
+
+* Surprisingly , the advanced user is in this category. It peaks at morning and late evening and has a high low pattern rest of day .  
+
+For Sedentary Short Sleepers:
+
+* There are only Noob and Above average step users in this category.
+* They have  intensive activity with a slight peak of activity in between days . According to fitabase, being sedentary burns certain amount of calories in a day.
+* The above average user is active on Monday and decreases on Tuesday with no activities on other days.
+
+For Sedentary Long Sleepers:
+
+* Surprisingly, an advanced user does highly intensive activities on a Thursday with data of no other days. The user is active between 10:00  to 20:00  and decreases gradually.
+
+Let US analyze the heart beat data
+
+```{r Grouping heartbeat rate data}
+    ht<- heartrate_seconds %>%
+        mutate(hr=hour(time)) %>% 
+    group_by(Id,Date,hr) %>% 
+    summarise(val=mean(Value))
+
+colnames(ht)[2]<-"ActivityDate"
+ht<- left_join(ht,tt[,c(1:3,5,7,9:12)] %>% distinct()) %>%  drop_na()
+```
+
+```{r select data from hourly data which are present in heartbeat rate }
+library(sqldf)
+test <- sqldf("SELECT * 
+    FROM hourly_cal_int_step hcis
+WHERE hcis.ID IN(
+    SELECT Id
+    FROM ht
+)")
+test$hr <- hour(test$time)
+
+```
+
+What is the heartbeat per minute per hour for the users everyday and how is it related to the intensity and steps taken ?
+```{r heartbeat per minute per hour for the users everyday and how is it related to the intensity and steps taken  }
+int <- function(mclust){
+
+  
+test %>% 
+    mutate(hr=hour(time)) %>% 
+    filter(mcluster==mclust) %>% 
+    group_by(Id,ActivityDate,hr,day) %>% 
+    summarise(int=mean(TotalIntensity)) %>% 
+    ggplot(aes(x=hr,y=int)) +
+    geom_line()+
+    facet_grid(day~Id)+
+    ggtitle(paste("Intensity of ",mclust," User"))
+}
+
+htt <- function(mclust){
+  
+ht %>% 
+    filter(mcluster==mclust) %>% 
+    ggplot(aes(x=hr,y=val)) +
+    geom_line()+
+    facet_grid(day~Id)+
+    theme(axis.text.x = element_text(angle =45,vjust=1.0,hjust=0.5))+
+    ylab("Heart beat rate")+
+    ggtitle(paste("Heartbeat rate of ",mclust," User"))
+  }
+
+
+```
+```{r}
+int("Very Active")
+htt("Very Active")
+int("Lightly Active")  
+htt("Lightly Active")
+int("Fairly Active")
+htt("Fairly Active")
+int("Sedentary")
+htt("Sedentary")
+
+
+```
+
+
+* There are 12 users in heart beat data. We can see that each user has a consistent pattern of heart beat rate over the hours of the day and each day of the week.
+* For every user, the heart beat rate increases in the morning as evening comes by the heart beat comes back to a normal range.
+* We can see that, if the intensity is zero then heart beat is in normal range of 70-80. As the user performs highly intensive activities the heart beat rate increases. The heart beat is directly proportional to the intensive level of the user.
+* We also see that most of the users heart beat rate increases between 05:00 and goes back to normal by 20:00. This can mean that the users might work in that time period . The stress level during working, walking etc might affect the heart beat rate of the user.
+* From the intensity graph we see that, the heart beat rate is increasing at the moment the user increasing the intensity level activity.
+* On sedentary users we see that for some user, the heart rate crosses 100 which might indicate some strenuous activity  etc. We can also check if they have anxiety attacks etc which increases stress and tension which increases the heart rate.  Since the data is not complete for heartbeat data we can find a somewhat pattern in different users activity.
+
+
+How is the metabolic rate related to intensity level for the users and how is their heart beat rate related to it?
+
+```{r How is the metabolic rate related to intensity level for the users and how is their heart beat rate related to it}
+met_hr <- minuteMET_narrow %>% 
+    mutate(hr=hour(time)) %>% 
+    group_by(Id,Date,day,hr) %>% 
+    summarise(met=sum(METs/10)) 
+
+test2 <- sqldf("SELECT met_hr.*,test.mcluster,test.st
+    FROM met_hr
+    LEFT JOIN test
+    ON met_hr.Id=test.Id AND 
+        met_hr.Date=test.ActivityDate AND
+        met_hr.day=test.day AND
+        met_hr.hr=test.hr
+    WHERE met_hr.Id IN(
+    SELECT Id
+    FROM test
+)")
+
+```
+
+```{r}
+    
+met_int <- function(mclust){    
+ggarrange(
+    
+    test2 %>%
+    filter(mcluster==mclust) %>% 
+    ggplot(aes(x=hr,y=met/60),alpha=0.1)+
+    geom_line(color="#db6d00")+
+    facet_grid(day~Id)+
+    ylab("Average Metabolic rate per minute")+
+  ggtitle(mclust)+
+   
+    geom_hline(data =test2 %>%
+    filter(mcluster==mclust),
+               aes(yintercept = 2), col = "dark red", linetype = 1,show.legend = TRUE)+
+    geom_hline(data =test2 %>%
+    filter(mcluster==mclust),
+               aes(yintercept = 4), col = "black", linetype = 2,show.legend = TRUE))
+ 
+  
+    
+}
+
+met_int("Very Active")
+met_int("Lightly Active")
+met_int("Fairly Active")
+met_int("Sedentary")
+
+    # int("Very Active"))}
+    #   
+    # test2 %>%
+    # filter(mcluster=="Fairly Active") %>% 
+    # ggplot(aes(x=hr,y=met/60),alpha=0.1)+
+    # geom_line(color="#490092")+
+    # facet_grid(day~Id)+
+    # ylab("Average Metabolic rate per minute")+
+    # ggtitle("Fairly Active User")
+    # 
+    # test2 %>%
+    # filter(mcluster=="Lightly Active") %>% 
+    # ggplot(aes(x=hr,y=met/60),alpha=0.1)+
+    # geom_line(color="#009E73")+
+    # facet_grid(day~Id)+
+    # ylab("Average Metabolic rate per minute")+
+    # ggtitle("Lightly Active User")
+    # 
+    # test2 %>%
+    # filter(mcluster=="Sedentary") %>% 
+    # ggplot(aes(x=hr,y=met/60),alpha=0.1)+
+    # geom_line(color="#0072b2")+
+    # facet_grid(day~Id)+
+
+    # ylab("Average Metabolic rate per minute")+
+    # ggtitle("Sedentary User")
+
+```
+ Following is assumption for intensive activities and MET levels.
+ 
+ Basic Minimal Activity : <2.0 MET
+ Moderate Intensive Activity : 2.0 - 4.0 MET
+ Vigorous Activity : > 4.0 MET
+ 
+* For very active users,we see that all the users reach an intensity of 4 at least once in a day and being in moderate intensive activity throughout the day and and goes to basic minimal activity as evening arises. We saw that heartbeat rate is in sync with intensity level. As the metabolic rate increases,the intensity level increases and heartbeat rate varies accordingly.
+
+* For Fairly Active Users, we see that most of the users have their most metabolic rate in the moderate intensity level (2.0-4.0) and reach vigorous intensity level. In comparison with fairly active user we see that a particular routine is less , though its still present for few users.
+
+* For Lightly Active User, We see that all the users lie in the range of moderate intensive activities metabolic rate(2.0-4.0).We see that their intensity and metabolic rate is high either in morning period or late evening or both and during the middle it remains at steady pace on weekdays. On weekends, it reaches high between 10:00 - 20:00 time period.
+
+* For Sedentary user, We see that the metabolic rate starts increasing after 10:00 am.They have most of the time period sedentary. Whatever non-sedentary period there is a pattern where the intensity is higher in late evening or by 20:00 . The heartbeat is in accordance with activity the user does. If any unusual activity is detected.
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
