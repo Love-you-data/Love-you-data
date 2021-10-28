@@ -1,0 +1,24 @@
+DROP TABLE IF EXISTS Person;
+Create Table IF NOT EXISTS Person (Id INT, Email VARCHAR(30));
+Truncate table Person;
+insert into Person (Id, Email) values ('1', 'john@example.com');
+insert into Person (Id, Email) values ('2', 'bob@example.com');
+insert into Person (Id, Email) values ('3', 'john@example.com');
+
+-- 182. FIND DU0LICATE EMAILS
+
+SELECT email
+FROM person
+HAVING count(*) >1;
+
+-- 196. DELETE DUPLICATE EMAILS
+
+WITH cte AS(
+SELECT *,
+		row_number() OVER(PARTITION BY email ORDER BY id) as rn
+        FROM Person
+)
+DELETE  FROM person 
+WHERE id in  ( SELECT id FROM cte WHERE rn >1);
+SELECT * FROM person;
+
