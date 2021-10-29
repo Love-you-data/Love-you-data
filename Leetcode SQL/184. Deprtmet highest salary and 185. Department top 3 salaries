@@ -54,4 +54,7 @@ rank() over(partition by d.name order by salary desc) as rk
 from employee e
 join department d
 on e.departmentid = d.id) a
+-- HIGHEST SALARY FOR EACH DEPARTMENT
 where a.rk=1;
+-- TOP 3SALARIES FOR EACH DEPARTMENT
+-- WHERE a.rk<=3;
