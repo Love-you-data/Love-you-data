@@ -1,0 +1,12 @@
+DROP TABLE point_2d;
+CREATE TABLE point_2d(x int ,y int);
+TRUNCATE point_2d;
+INSERT INTO point_2d VALUES(-1,1),(0,0),(-1,2); -- ,(2,3),(2,4),(2,5),(6,1);
+
+
+WITH cte AS(
+SELECT x,y ,ROW_NUMBER() OVER() AS rn
+FROM point_2d)
+SELECT MIN(DISTINCT ROUND(sqrt(pow(abs(a.x-b.x),2)+pow(abs(a.y-b.y),2)),2)) AS shortest_distance
+FROM cte a, cte b
+WHERE a.rn!=b.rn;
