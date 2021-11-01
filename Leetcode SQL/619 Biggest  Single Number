@@ -1,0 +1,46 @@
+
+-- Table my_numbers contains many numbers in column num including duplicated ones.
+-- Can you write a SQL query to find the biggest number, which only appears once.
+
+-- +---+
+-- |num|
+-- +---+
+-- | 8 |
+-- | 8 |
+-- | 3 |
+-- | 3 |
+-- | 1 |
+-- | 4 |
+-- | 5 |
+-- | 6 | 
+-- For the sample data above, your query should return the following result:
+-- +---+
+-- |num|
+-- +---+
+-- | 6 |
+-- Note:
+-- If there is no such number, just output null.
+SELECT * FROM numb;
+CREATE TABLE IF NOT EXISTS numb(numb int);
+TRUNCATE TABLE numb;
+INSERT INTO numb(numb) VALUES(8);
+INSERT INTO numb(numb) VALUES(8);
+INSERT INTO numb(numb) VALUES(3);
+INSERT INTO numb(numb) VALUES(3);
+INSERT INTO numb(numb) VALUES(1);
+INSERT INTO numb(numb) VALUES(1);
+INSERT INTO numb(numb) VALUES(4);
+INSERT INTO numb(numb) VALUES(5);
+INSERT INTO numb(numb) VALUES(4);
+INSERT INTO numb(numb) VALUES(5);
+INSERT INTO numb(numb) VALUES(6);
+INSERT INTO numb(numb) VALUES(6);
+
+SELECT IFNULL((
+SELECT numb
+FROM numb
+GROUP BY numb
+HAVING COUNT(*) =1
+ORDER BY numb DESC
+LIMIT 1 
+),NULL) as num;
