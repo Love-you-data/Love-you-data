@@ -39,15 +39,23 @@
 -- Queue table is ordered by turn in the example for simplicity.
 -- In the example George Washington(id 5), John Adams(id 3) and Thomas Jefferson(id 6) will enter the elevator as their weight sum is 250 + 350 + 400 = 1000.
 -- Thomas Jefferson(id 6) is the last person to fit in the elevator because he has the last turn in these three people.
+
 -- Solution
 
 CREATE TABLE queue(id int,name TEXT,weight int,turn int);
 TRUNCATE TABLE queue;
-INSERT INTO queue VALUES(5,"GW",250,1),(3,"JA",350,2),(6,"TJ",400,3),(2,"WJ",200,4),(4,"TJ",175,5),(1,"JE",500,6);
+INSERT INTO queue VALUES(5,"GW",250,1),(3,"JA",350,2),(6,"TJ",300,3),(2,"WJ",100,4),(4,"T1J",175,5),(1,"JE",500,6);
 
-SELECT  name
-FROM(
+WITH cte as(
 SELECT name,turn,SUM(weight) OVER(ORDER BY turn) as cm
-FROM queue) cf
-WHERE cm>=1000
-LIMIT 1 ;
+FROM queue
+),
+cte2 as(
+SELECT  name,IF( cm> 1000 , turn-1 , turn )as vgg
+FROM(
+SELECT  name,turn,cm
+FROM cte
+WHERE cm >=1000
+LIMIT 1) v
+)
+select cte.name from cte INNER JOIN cte2 ON cte.turn=cte2.vgg;
