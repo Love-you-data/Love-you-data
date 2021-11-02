@@ -1,0 +1,36 @@
+Create table If Not Exists Ads (ad_id int, user_id int ,action text);
+Truncate table Ads;
+insert into Ads (ad_id,user_id,action) values (1, 1,'clicked');
+insert into Ads (ad_id,user_id,action) values (2, 2,'clicked');
+insert into Ads (ad_id,user_id,action) values (3, 3,'viewed');
+insert into Ads (ad_id,user_id,action) values (5, 5,'ignored');
+insert into Ads (ad_id,user_id,action) values (1, 7,'ignored');
+insert into Ads (ad_id,user_id,action) values (2, 7,'viewed');
+insert into Ads (ad_id,user_id,action) values (3, 5,'clicked');
+insert into Ads (ad_id,user_id,action) values (1, 4,'viewed');
+insert into Ads (ad_id,user_id,action) values (2, 11,'viewed');
+insert into Ads (ad_id,user_id,action) values (1, 2,'clicked');
+
+ -- (ad_id, user_id) is the primary--  key for this table.
+-- Each row of this table contains the ID of an Ad, the ID of a user and the action taken by this user regarding this Ad.
+-- The action column is an ENUM type of ('Clicked', 'Viewed', 'Ignored').
+ -- A company is running Ads and wants to calculate the performance of each Ad.
+-- Performance of the Ad is measured using Click-Through Rate (CTR) where:
+-- ctr=0 if total_click+total_views=0
+-- ctr= totl_clicks /(tc+tv)*100
+-- Write an SQL query to find the ctr of each Ad.
+-- Round ctr to 2 decimal points. Order the result table by ctr in descending order and by ad_id in ascending order in case of a tie.
+
+
+WITH CTE AS(
+select ad_id, 
+	SUM(CASE WHEN action IN('clicked') THEN action_ct ELSE 0 END) AS clicked,
+	SUM(CASE WHEN action IN('clicked','viewed') THEN action_ct ELSE 0 END) AS total
+from (SELECT ad_id,action,COUNT(*) action_ct
+FROM ads
+GROUP BY ad_id,action) ct
+GROUP BY ad_id
+)
+SELECT  ad_id,coalesce(round((clicked +0.0)/nullif((total +0.0),0)*100,2),0) as ctr
+FROM cte
+GROUP BY ad_id;
