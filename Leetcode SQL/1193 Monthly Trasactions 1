@@ -1,0 +1,139 @@
+-- Table: Transactions
+
+-- +----------------+---------+
+-- | Column Name    | Type    |
+-- +----------------+---------+
+-- | id             | int     |
+-- | country        | varchar |
+-- | state          | enum    |
+-- | amount         | int     |
+-- | trans_date     | date    |
+-- +----------------+---------+
+-- id is the primary key of this table.
+-- The table has information about incoming transactions.
+-- The state column is an enum of type ["approved", "declined"].
+-- Table: Chargebacks
+
+-- +----------------+---------+
+-- | Column Name    | Type    |
+-- +----------------+---------+
+-- | trans_id       | int     |
+-- | charge_date    | date    |
+-- +----------------+---------+
+-- Chargebacks contains basic information regarding incoming chargebacks from some transactions placed in Transactions table.
+-- trans_id is a foreign key to the id column of Transactions table.
+-- Each chargeback corresponds to a transaction made previously even if they were not approved.
+ 
+ -- Write an SQL query to find for each month and country, the number of approved transactions and their total amount, 
+-- the number of chargebacks and their total amount.
+-- Note: In your query, given the month and country, ignore rows with all zeros.
+-- The query result format is in the following example:
+
+-- Transactions table:
+-- +------+---------+----------+--------+------------+
+-- | id   | country | state    | amount | trans_date |
+-- +------+---------+----------+--------+------------+
+-- | 101  | US      | approved | 1000   | 2019-05-18 |
+-- | 102  | US      | declined | 2000   | 2019-05-19 |
+-- | 103  | US      | approved | 3000   | 2019-06-10 |
+-- | 104  | US      | approved | 4000   | 2019-06-13 |
+-- | 105  | US      | approved | 5000   | 2019-06-15 |
+-- +------+---------+----------+--------+------------+
+
+-- Chargebacks table:
+-- +------------+------------+
+-- | trans_id   | trans_date |
+-- +------------+------------+
+-- | 102        | 2019-05-29 |
+-- | 101        | 2019-06-30 |
+-- | 105        | 2019-09-18 |
+-- +------------+------------+
+
+-- Result table:
+-- +----------+---------+----------------+-----------------+-------------------+--------------------+
+-- | month    | country | approved_count | approved_amount | chargeback_count  | chargeback_amount  |
+-- +----------+---------+----------------+-----------------+-------------------+--------------------+
+-- | 2019-05  | US      | 1              | 1000            | 1                 | 2000               |
+-- | 2019-06  | US      | 3              | 12000           | 1                 | 1000               |
+-- | 2019-09  | US      | 0              | 0               | 1                 | 5000               |
+-- +----------+---------+----------------+-----------------+-------------------+--------------------+
+
+CREATE TABLE transactions ( id int,country text,state text,amount int,trans_date date);
+TRUNCATE TABLE transactions;
+INSERT INTO transactions VALUES(101,"US","approved",1000,"2019-05-18"),
+(102,"US","declined",2000,"2019-05-19"),
+(103,"US","approved",3000,"2019-06-10"),
+(104,"US","approved",4000,"2019-06-15"),
+(105,"US","approved",5000,"2019-06-15");
+
+CREATE TABLE chargebacks(trans_id int,trans_date date);
+INSERT INTO chargebacks VALUES(102, "2019-05-29"),(101,"2019-06-30"),(105,"2019-09-18");
+
+WITH cte AS(
+SELECT id,country,amount,date_format(t.trans_date,"%Y-%m") as month
+FROM transactions t
+UNION ALL
+SELECT distinct T.id,country,coalesce(null,null),date_format(cb.trans_date,"%Y-%m") as month
+FROM transactions t
+RIGHT JOIN chargebacks cb
+ON cb.trans_id=t.id 
+) ,
+-- SELECT * FROM cte;
+T2 AS(
+SELECT id,month,country,COUNT(DISTINCT id) as ct,sum(amount) as am,0 as cct, 0 as ccb
+FROM cte
+WHERE amount IS NOT NULL
+GROUP BY month,country
+UNION
+SELECT a.id,a.month,a.country,0,coalesce(SUM(a.amount),0) as am, COUNT(DISTINCT a.id) as cct, b.amount   as ccb
+FROM cte a, cte b
+WHERE a.amount IS  NULL AND a.id=b.id AND b.amount IS NOT NULL
+GROUP BY month,country)
+-- sELECT * FROM t2;
+
+select t2.month,
+		t2.country,
+        SUM(ct) as ct,
+        IF(state="declined",SUM(am)-sum(ccb),sum(am)) as am,
+        SUM(cct) as ctt, 
+        sum(ccb) as ccb        
+fROM t2
+INNER JOIN (SELECT cb.trans_id,date_format(cb.trans_date,"%Y-%m") as month, t.amount,t.state
+FROM chargebacks cb
+LEFT JOIN transactions t
+ON cb.trans_id=t.id
+)q
+ON q.month=t2.month
+GROUP BY MONTH,country;
+
+-- ALTERNATIVE 
+with t1 as
+(select country, month(trans_date) as date_part, state, count(*) as approved_count, sum(amount) as approved_amount
+from transactions
+where state = 'approved'
+group by 1, 2, 3),
+t2 as(
+select t.country, month(c.trans_date) as date_part, sum(amount) as chargeback_amount, count(*) as chargeback_count
+from chargebacks c left join transactions t 
+on trans_id = id
+group by t.country, month(c.trans_date)),
+
+t3 as(
+select t2.date_part, t2.country, 
+coalesce(approved_count,0) as approved_count, 
+coalesce(approved_amount,0) as approved_amount, 
+coalesce(chargeback_count,0) as chargeback_count, 
+coalesce(chargeback_amount,0) as chargeback_amount
+from t2 left join t1 
+on t2.date_part = t1.date_part and t2.country = t1.country),
+
+t4 as(
+select t1.date_part, t1.country, coalesce(approved_count,0) as approved_count, coalesce(approved_amount,0) as approved_amount, coalesce(chargeback_count,0) as chargeback_count, coalesce(chargeback_amount,0) as chargeback_amount
+from t2 right join t1 
+on t2.date_part = t1.date_part and t2.country = t1.country)
+
+select *
+from t3
+union
+select *
+from t4;
