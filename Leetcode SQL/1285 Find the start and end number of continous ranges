@@ -1,0 +1,12 @@
+DROP TABLE logs;
+CREATE TABLE IF NOT EXISTS logs(id int,num int);
+TRUNCATE TABLE logs;
+INSERT INTO logs (id,num) VALUES(1,1),(2,1),(3,1),(4,2),(5,1),(6,2),(7,2);
+
+select distinct a.num as ConsecutiveNums
+from(
+select *,
+lag(num) over() as prev,
+lead(num) over() as next
+from logs) a
+where a.num = a.prev and a.num=a.next;
