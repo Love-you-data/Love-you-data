@@ -1,0 +1,20 @@
+
+WITH t1 AS(
+SELECT caller_id AS id, duration AS total
+FROM
+(SELECT caller_id, duration
+FROM calls
+UNION ALL
+SELECT callee_id, duration
+FROM calls) a
+) 
+SELECT name,AVG(total)
+FROM(
+SELECT t1.id,total,left(phone,3) as cct ,co.name FROM t1
+INNER JOIN Person p
+ON p.id=t1.id
+INNER JOIN country co
+ON co.cc= left(phone,3)) cff
+GROUP BY name
+HAVING AVG(TOTAL)  >  (SELECT AVG(TOTAL)  FROM t1)
+
