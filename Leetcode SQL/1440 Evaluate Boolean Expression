@@ -1,0 +1,29 @@
+DROP TABLE variables;
+DROP TABLE expressions;
+CREATE TABLE variables(name text, value int);
+CREATE TABLE expressions(left_operand text,operator text,right_operand text);   
+TRUNCATE variables;
+ TRUNCATE expressions;
+ INSERT INTO variables VALUES("x",66),("y",77);
+INSERT INTO expressions VALUES("x",">","y"),
+("x","<","y"),
+("x","=","y"),
+("y",">","x"),
+("y","<","x"),
+("y","=","x");
+
+with t1 as(
+select e.left_operand, e.operator, e.right_operand, v.value as left_val, v_1.value as right_val
+from expressions e
+join variables v
+on v.name = e.left_operand 
+join variables v_1
+on v_1.name = e.right_operand)
+
+select t1.left_operand, t1.operator, t1.right_operand,
+case when t1.operator = '<' then (select t1.left_val< t1.right_val)
+when t1.operator = '>' then (select t1.left_val > t1.right_val)
+when t1.operator = '=' then (select t1.left_val = t1.right_val)
+else FALSE
+END AS VALUE
+from t1;
