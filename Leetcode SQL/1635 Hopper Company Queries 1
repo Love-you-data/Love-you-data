@@ -10,7 +10,8 @@ tm as
 )
 
 SELECT month, 
-    ifnull(ROUND(count(DISTINCT AcceptedRides.driver_id)/count(DISTINCT Drivers.driver_id)*100,2),0.00) working_percentage
+    count(DISTINCT Drivers.driver_id) active_drivers,
+    count(DISTINCT AcceptedRides.ride_id) accepted_rides 
 from tm LEFT JOIN Drivers on DATE_FORMAT(join_date,'%Y-%m')<= ym
     LEFT JOIN Rides on DATE_FORMAT(requested_at,'%Y-%m') = ym
     LEFT JOIN AcceptedRides using(ride_id)
