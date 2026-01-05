@@ -59,4 +59,11 @@ data_quality_report.txt: Data quality validation report
 This approach mirrors real enterprise analytics systems where business logic
 changes frequently and must remain auditable, reusable, and scalable.
 
+- Record-level data quality validation including:
+  - Null checks
+  - Negative value checks
+  - Strict data type enforcement
+  - Business semantic rules (e.g., integer-only quantities)
+
+
 
