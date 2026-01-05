@@ -35,6 +35,28 @@ externally via YAML configuration files, eliminating hard-coded logic.
 - Clear separation of data, logic, and configuration
 
 ## Folder Structure
+config-driven-kpi-engine/
+├── data/ # Input datasets
+├── config/ # KPI definitions and aggregation rules
+├── dq/ # Data quality rules
+├── src/ # Core analytics engine
+├── output/ # KPI output and data quality reports
 
+
+## How to Run
+```bash
+pip install -r requirements.txt
+python src/kpi_engine.py --data data/sample_data.csv --config config/kpi_config.yaml
+
+** ## Output**
+
+kpi_output.csv: Aggregated KPI metrics
+
+data_quality_report.txt: Data quality validation report
+
+**## Business Value**
+
+This approach mirrors real enterprise analytics systems where business logic
+changes frequently and must remain auditable, reusable, and scalable.
 
 
