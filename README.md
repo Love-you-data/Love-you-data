@@ -22,30 +22,19 @@ You can click the Preview link to take a look at your changes.
 # Config-Driven KPI Engine
 
 ## Overview
-This project demonstrates a dynamic, configuration-driven approach to calculating
-business KPIs without hard-coded logic. KPIs and formulas are defined externally
-and applied automatically on transactional data.
+This project implements a reusable, configuration-driven analytics engine
+for calculating business KPIs from transactional data.
 
-## Why This Project
-In real business environments, KPI definitions change frequently.
-This solution allows analytics teams to update metrics without modifying code,
-improving agility and governance.
+All KPI formulas, aggregation logic, and data quality rules are defined
+externally via YAML configuration files, eliminating hard-coded logic.
 
-## Features
-- No hard-coded KPIs
-- Config-based formulas using YAML
-- Reusable for any CSV-based business dataset
+## Key Features
+- Config-driven KPI definitions and aggregation
+- Data Quality validation with audit-friendly reporting
+- Command-line interface for flexible execution
 - Clear separation of data, logic, and configuration
 
-## Tech Stack
-- Python
-- Pandas
-- YAML
-
-## How to Run
-```bash
-pip install -r requirements.txt
-python src/kpi_engine.py
+## Folder Structure
 
 
 
