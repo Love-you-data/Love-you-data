@@ -42,12 +42,11 @@ config-driven-kpi-engine/
 ├── src/ # Core analytics engine
 ├── output/ # KPI output and data quality reports
 
-
 ## How to Run
 ```bash
 pip install -r requirements.txt
-python src/kpi_engine.py --data data/sample_data.csv --config config/kpi_config.yaml    
-
+python src/kpi_engine.py --data data/sample_data.csv --config config/kpi_config.yaml
+```
 ## Output
 
 kpi_output.csv: Aggregated KPI metrics
@@ -67,7 +66,7 @@ changes frequently and must remain auditable, reusable, and scalable.
 
 
 
-🤖 Market-Regime-Driven Stock Options Strategy Agent
+## 🤖 Market-Regime-Driven Stock Options Strategy Agent
 
 An AI-driven analytics system that detects market regimes using NIFTY index data and recommends stock options strategy profiles based on how such strategies historically performed under similar market conditions.
 
