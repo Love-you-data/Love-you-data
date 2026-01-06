@@ -96,6 +96,129 @@ Instead of predicting prices, this system answers:
 
 “Given the current market environment, which stock option strategies have historically worked better?”
 
+🏗️ Architecture Overview
+
+NIFTY Historical Data
+        ↓
+Feature Engineering
+        ↓
+ML-Based Regime Detection (Unsupervised)
+        ↓
+Market Regime Interpretation
+        ↓
+Stock Options Strategy Mapping
+        ↓
+Regime-Based Benchmarking vs NIFTY
+        ↓
+AI Insights + Confidence
+        ↓
+Streamlit UI
+
+
+📊 Market Regimes Detected
+
+Using unsupervised ML (KMeans), the system identifies distinct market regimes such as:
+
+Bullish
+
+Bullish–Volatile
+
+Bearish
+
+Crash / Stress
+
+These regimes are inferred purely from NIFTY index behavior, which provides a clean, noise-reduced view of overall market conditions.
+
+🧩 Strategy Modeling Approach (Important)
+
+This project does not price options using Black–Scholes or Greeks.
+
+Instead, it uses strategy behavior modeling:
+
+Each option strategy (e.g., Long Call, Iron Condor) is represented by a proxy return profile
+
+Proxy returns are derived from underlying index returns
+
+This allows:
+
+Clean comparison
+
+Explainable logic
+
+Regime-based performance analysis
+
+This approach is commonly used in early-stage quant research and regime studies.
+
+📈 Strategy Benchmarking
+
+For each market regime, the system evaluates:
+
+Average strategy return
+
+Outperformance vs NIFTY buy-and-hold
+
+Win rate (% days strategy beat NIFTY)
+
+Example insight:
+
+“In Bullish–Volatile regimes, Long Call–type stock option strategies outperformed NIFTY with a 66% win rate.”
+
+🖥️ Interactive UI (Streamlit)
+
+The Streamlit UI allows users to:
+
+View current market regime
+
+See recommended stock options strategy profiles
+
+Understand why a strategy is suggested
+
+Review historical regime-based insights
+
+The stock symbol input is optional and intended only as an execution reference,
+not as a driver of market regime detection.
+
+⚖️ What This Project Is / Is Not
+✅ This project IS
+
+Market-regime driven
+
+ML-based (unsupervised learning)
+
+Explainable and benchmarked
+
+Focused on stock options strategies
+
+❌ This project is NOT
+
+A stock picker
+
+An options pricing engine
+
+A trade execution system
+
+A buy/sell signal generator
+
+🛠️ Tech Stack
+
+Python
+
+Pandas / NumPy
+
+scikit-learn
+
+Yahoo Finance (data source)
+
+Streamlit (UI)
+
+🚀 How to Run
+
+pip install -r requirements.txt
+streamlit run ui/app.py
+
+🧠 Key Takeaway
+
+This project demonstrates how AI and ML can be used for market context awareness and strategy selection, rather than price prediction 
 
 
 
