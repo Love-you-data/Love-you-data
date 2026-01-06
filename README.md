@@ -67,3 +67,36 @@ changes frequently and must remain auditable, reusable, and scalable.
 
 
 
+🤖 Market-Regime-Driven Stock Options Strategy Agent
+
+An AI-driven analytics system that detects market regimes using NIFTY index data and recommends stock options strategy profiles based on how such strategies historically performed under similar market conditions.
+
+⚠️ This project is for educational and analytical purposes only.It does not provide trading advice or execute trades.
+
+
+🔍 Problem Statement
+
+Options traders often struggle with choosing the right strategy for the current market environment.
+Using the wrong strategy in the wrong regime (e.g., selling options in high volatility) can lead to poor outcomes.
+
+This project addresses that problem by:
+
+Automatically identifying market regimes using machine learning
+
+Mapping each regime to appropriate stock options strategies
+
+Benchmarking strategy behavior against NIFTY buy-and-hold
+
+Presenting insights in a clear, explainable UI
+
+🧠 Key Idea
+
+Market regime → Strategy suitability
+
+Instead of predicting prices, this system answers:
+
+“Given the current market environment, which stock option strategies have historically worked better?”
+
+
+
+
